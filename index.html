@@ -1,0 +1,2513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Intelligence Industrial | Empresa 1 &amp; Empresa 2</title>
+  <meta name="description"
+    content="Sistema Executivo de Business Intelligence Industrial, Produção, Vendas por Estado, Curva ABC, Split Fiscal e Custos Industriais.">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <script>
+    (function () {
+      try {
+        var savedTheme = localStorage.getItem('mb_theme');
+        if (savedTheme === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css?v=20261029_rh_mes_filter">
+  <!-- Chart.js local (offline com suporte a Arquivos.js e raiz) -->
+  <script src="Arquivos.js/chart.min.js"></script>
+  <script>
+    if (typeof Chart === 'undefined') {
+      document.write('<script src="chart.min.js"><\/script>');
+    }
+  </script>
+</head>
+
+<body>
+
+  <!-- ESTRUTURA PRINCIPAL COM MENU LATERAL (SIDEBAR) -->
+  <div class="app-shell" id="app-shell">
+
+    <!-- MENU LATERAL RETRÁTIL (SIDEBAR) -->
+    <aside class="app-sidebar" id="app-sidebar">
+
+      <!-- Topo do Menu: Marca Oficial e Botão de Recolher -->
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="brand-text">
+            <span class="brand-bi-tag">BUSINESS INTELLIGENCE</span>
+            <h1 id="brand-title">BI Industrial</h1>
+            <p id="brand-subtitle">EMPRESA 1 & EMPRESA 2</p>
+          </div>
+        </div>
+        <button class="btn-toggle-sidebar" id="btn-toggle-sidebar" onclick="toggleSidebar()"
+          title="Recolher / Expandir Menu">
+          <span class="toggle-icon">◀</span>
+        </button>
+      </div>
+
+      <!-- Seletor de Empresa / Unidade -->
+      <div class="sidebar-company-box">
+        <span class="sidebar-section-title">UNIDADE DE NEGÓCIO</span>
+        <div class="company-switcher-vertical" id="company-switcher" role="tablist">
+          <button class="company-btn active btn-all" id="btn-comp-consolidado" data-company="consolidado"
+            onclick="setCompany('consolidado')" title="Grupo Consolidado">
+            <span class="comp-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            </span>
+            <span class="comp-name">Grupo Consolidado</span>
+          </button>
+          <button class="company-btn" id="btn-comp-mb" data-company="mb" onclick="setCompany('mb')" title="Empresa 1">
+            <span class="comp-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </span>
+            <span class="comp-name">Empresa 1</span>
+          </button>
+          <button class="company-btn btn-mod" id="btn-comp-moderna" data-company="moderna"
+            onclick="setCompany('moderna')" title="Empresa 2">
+            <span class="comp-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>
+            </span>
+            <span class="comp-name">Empresa 2</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Itens de Navegação com Grupos Estratégicos -->
+      <nav class="sidebar-nav" role="navigation">
+
+        <div class="nav-group">
+          <span class="nav-group-title">VISÃO GERAL</span>
+          <button class="nav-tab active" data-tab="tab-visao-geral" onclick="switchTab('tab-visao-geral')"
+            title="Visão Geral Executiva">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            </span>
+            <span class="nav-text">Visão Geral</span>
+          </button>
+        </div>
+
+        <div class="nav-group">
+          <span class="nav-group-title">INDUSTRIAL</span>
+          <button class="nav-tab" data-tab="tab-producao" onclick="switchTab('tab-producao')"
+            title="Engenharia de Produção & Curva ABC">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>
+            </span>
+            <span class="nav-text">Produção</span>
+            <span class="nav-badge info">80/20</span>
+          </button>
+        </div>
+
+        <div class="nav-group">
+          <span class="nav-group-title">COMERCIAL & MERCADO</span>
+          <button class="nav-tab" data-tab="tab-estados" onclick="switchTab('tab-estados')"
+            title="Vendas por Estado (UF) & Brasil">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            </span>
+            <span class="nav-text">Vendas por Estado</span>
+          </button>
+          <button class="nav-tab" data-tab="tab-churn" onclick="switchTab('tab-churn')"
+            title="Clientes Inativos & Resgate de Churn">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+            <span class="nav-text">Clientes Inativos</span>
+            <span class="nav-badge alert" id="badge-churn-count">1.260</span>
+          </button>
+        </div>
+
+        <div class="nav-group">
+          <span class="nav-group-title">CONTROLADORIA & RH</span>
+          <button class="nav-tab" id="nav-tab-budget" data-tab="tab-budget" onclick="switchTab('tab-budget')"
+            title="Planejamento Orçamentário: Budget vs. Realizado, Run Rate e Metas">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </span>
+            <span class="nav-text">Budget & Metas</span>
+            <span class="nav-badge info">2026</span>
+          </button>
+          <button class="nav-tab" id="nav-tab-gastos" data-tab="tab-gastos" onclick="switchTab('tab-gastos')"
+            title="Plano de Gastos e Investimentos para o Próximo Exercício">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            </span>
+            <span class="nav-text">Plano de Gastos & Invest.</span>
+            <span class="nav-badge success">2027</span>
+          </button>
+          <button class="nav-tab" data-tab="tab-split" onclick="switchTab('tab-split')"
+            title="Equilíbrio Fiscal & Split (Empresa 1 vs Empresa 2)">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+            </span>
+            <span class="nav-text">Equilíbrio Fiscal</span>
+          </button>
+          <button class="nav-tab" data-tab="tab-colaboradores" onclick="switchTab('tab-colaboradores')"
+            title="Produtividade & Lucro por Colaborador">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+            <span class="nav-text">Produtividade & RH</span>
+            <span class="nav-badge success">28</span>
+          </button>
+          <button class="nav-tab" id="nav-tab-organograma" onclick="openOrganogramaSection()"
+            title="Organograma Corporativo & Estrutura de Cargos por Setor">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="9" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5"/><path d="M5 17v-5h14v5"/></svg>
+            </span>
+            <span class="nav-text">Organograma RH</span>
+            <span class="nav-badge info">Áreas</span>
+          </button>
+          <button class="nav-tab" id="nav-tab-custos" data-tab="tab-custos" onclick="switchTab('tab-custos')"
+            title="Custos Industriais, Fichas Técnicas & Formação de Preço (Pricing)">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </span>
+            <span class="nav-text">Custos & Formação de Preço</span>
+            <span class="nav-badge info">Pricing</span>
+          </button>
+        </div>
+
+        <div class="nav-group">
+          <span class="nav-group-title">CONFIGURAÇÕES & RELATÓRIOS</span>
+          <button class="nav-tab" id="nav-tab-relatorio" data-tab="tab-relatorio" onclick="switchTab('tab-relatorio')"
+            title="Relatório Executivo Geral para Impressão e PDF">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            </span>
+            <span class="nav-text">Relatório para Impressão</span>
+            <span class="nav-badge info">PDF</span>
+          </button>
+        </div>
+
+      </nav>
+
+    </aside>
+
+    <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
+    <div class="app-main-content">
+
+      <!-- TOPBAR COMPACTO -->
+      <header class="app-topbar">
+
+        <div class="topbar-left">
+          <button class="btn-topbar-toggle" onclick="toggleSidebar()" title="Recolher/Expandir Menu">
+            ☰
+          </button>
+          <div class="topbar-bi-badge" title="Sistema Oficial de Business Intelligence Industrial">
+            <span class="pulse-dot-red"></span>
+            <span class="topbar-bi-text">BUSINESS INTELLIGENCE</span>
+          </div>
+          <div class="topbar-breadcrumb">
+            <span class="topbar-root" id="topbar-empresa-name">Grupo Consolidado</span>
+            <span class="topbar-sep">/</span>
+            <span class="topbar-active-page" id="topbar-active-title">Visão Geral Executiva</span>
+          </div>
+        </div>
+
+        <div class="topbar-center">
+          <!-- Filtros Globais Rápidos -->
+          <div class="topbar-filters">
+            <span class="topbar-filter-label">Filtros:</span>
+            <select class="filter-select compact" id="filter-ano" onchange="applyGlobalFilters()" title="Filtrar Ano">
+              <option value="todos">(2020 a 2026)</option>
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+            </select>
+
+            <select class="filter-select compact" id="filter-mes" onchange="applyGlobalFilters()" title="Filtrar Mês">
+              <option value="todos">(Jan a Dez)</option>
+              <option value="1">Janeiro</option>
+              <option value="2">Fevereiro</option>
+              <option value="3">Março</option>
+              <option value="4">Abril</option>
+              <option value="5">Maio</option>
+              <option value="6">Junho</option>
+              <option value="7">Julho</option>
+              <option value="8">Agosto</option>
+              <option value="9">Setembro</option>
+              <option value="10">Outubro</option>
+              <option value="11">Novembro</option>
+              <option value="12">Dezembro</option>
+            </select>
+
+            <select class="filter-select compact" id="filter-categoria" onchange="applyGlobalFilters()"
+              title="Filtrar Família">
+              <option value="todas">Todas as Famílias de Produtos</option>
+              <option value="Pontas Diamantadas">Pontas Diamantadas</option>
+              <option value="Fresas de Tungstênio">Fresas de Tungstênio</option>
+              <option value="Mandris & Acessórios">Mandris & Acessórios</option>
+              <option value="Lixas & Abrasivos">Lixas & Abrasivos</option>
+              <option value="Fibras Moleculares">Fibras Moleculares</option>
+              <option value="Instrumentais & Podologia">Instrumentais & Podologia</option>
+              <option value="Fresas Diamantadas">Fresas Diamantadas</option>
+              <option value="Brocas & Polidores">Brocas & Polidores</option>
+            </select>
+
+            <select class="filter-select compact" id="filter-uf" onchange="applyGlobalFilters()" title="Filtrar Estado">
+              <option value="todos">Todos os Estados (Brasil & EX)</option>
+              <option value="SP">São Paulo (SP)</option>
+              <option value="PR">Paraná (PR)</option>
+              <option value="MG">Minas Gerais (MG)</option>
+              <option value="RJ">Rio de Janeiro (RJ)</option>
+              <option value="GO">Goiás (GO)</option>
+              <option value="SC">Santa Catarina (SC)</option>
+              <option value="ES">Espírito Santo (ES)</option>
+              <option value="RS">Rio Grande do Sul (RS)</option>
+              <option value="PE">Pernambuco (PE)</option>
+              <option value="EX">Exterior / Exportações</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button class="btn-theme-toggle compact" id="btn-theme-toggle" onclick="toggleTheme()" title="Alternar Modo Claro / Escuro (Dia / Noite)">
+            <span id="theme-toggle-icon">☀️</span> <span id="theme-toggle-text">Modo Claro</span>
+          </button>
+          <button class="btn-action btn-refresh compact" id="btn-refresh-data" title="Recompilar e Atualizar Dados">
+            🔄 Atualizar
+          </button>
+          <button class="btn-action compact" id="btn-export-csv" onclick="exportDataCSV()" title="Exportar Resumo">
+            📥 CSV
+          </button>
+          <button class="btn-action compact" id="btn-print-report" onclick="openAndPrintReport()"
+            title="Visualizar e Imprimir Relatório Executivo">
+            🖨️ PDF
+          </button>
+        </div>
+
+      </header>
+
+      <!-- CONTEÚDO PRINCIPAL -->
+      <main class="main-container">
+
+        <!-- =========================================================================
+         TAB 1: VISÃO GERAL EXECUTIVA
+         ========================================================================= -->
+        <div id="tab-visao-geral" class="tab-pane active">
+
+          <!-- KPI Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card cyan">
+              <div class="kpi-header">
+                <span class="kpi-title">Faturamento Total</span>
+                <span class="kpi-icon">💰</span>
+              </div>
+              <div class="kpi-value" id="kpi-faturamento">R$ 36.304.321,56</div>
+              <div class="kpi-sub" id="kpi-faturamento-sub"><span class="kpi-trend-up">▲ Histórico 7 Anos</span> &bull;
+                2020 a 2026</div>
+            </div>
+
+            <div class="kpi-card emerald">
+              <div class="kpi-header">
+                <span class="kpi-title">Peças Faturadas / Produzidas</span>
+                <span class="kpi-icon">⚙️</span>
+              </div>
+              <div class="kpi-value" id="kpi-quantidade">6.876.203</div>
+              <div class="kpi-sub" id="kpi-quantidade-sub"><span class="kpi-trend-up">▲ 982k peças/ano méd.</span>
+                &bull; Alto volume fabril</div>
+            </div>
+
+            <div class="kpi-card blue">
+              <div class="kpi-header">
+                <span class="kpi-title">Ticket Médio por Pedido</span>
+                <span class="kpi-icon">📄</span>
+              </div>
+              <div class="kpi-value" id="kpi-ticket">R$ 2.667,08</div>
+              <div class="kpi-sub" id="kpi-ticket-sub"><span class="kpi-trend-neutral">13.612 pedidos</span> faturados
+              </div>
+            </div>
+
+            <div class="kpi-card amber">
+              <div class="kpi-header">
+                <span class="kpi-title">Preço Médio por Peça</span>
+                <span class="kpi-icon">🏷️</span>
+              </div>
+              <div class="kpi-value" id="kpi-preco-medio">R$ 5,28</div>
+              <div class="kpi-sub" id="kpi-preco-sub">Mix Pontas + Fresas + Mandris</div>
+            </div>
+
+            <div class="kpi-card purple">
+              <div class="kpi-header">
+                <span class="kpi-title">Clientes Ativos</span>
+                <span class="kpi-icon">🤝</span>
+              </div>
+              <div class="kpi-value" id="kpi-clientes">1.958</div>
+              <div class="kpi-sub" id="kpi-clientes-sub">Compradores cadastrados</div>
+            </div>
+          </div>
+
+
+          <!-- Gráficos de Faturamento Histórico e Mensal -->
+          <div class="charts-grid-2">
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">Evolução Anual de Faturamento (2020 - 2026)</h3>
+                  <p class="panel-subtitle">Trajetória de crescimento anual em Reais</p>
+                </div>
+                <div class="chart-header-controls">
+                  <div class="chart-goal-box" title="Defina a meta anual para exibir a linha de referência no gráfico">
+                    <span class="goal-label">Meta Anual</span>
+                    <div class="goal-input-wrap">
+                      <span class="goal-prefix">R$</span>
+                      <input type="text" id="input-meta-anual" class="goal-input" placeholder="8.000.000" oninput="onMetaInput('anual', this.value)">
+                    </div>
+                  </div>
+                  <div class="prev-month-badge" id="badge-meta-anual-status"></div>
+                </div>
+              </div>
+              <div class="chart-wrapper chart-wrapper-xl">
+                <canvas id="chart-anual"></canvas>
+              </div>
+            </div>
+
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">Evolução Mensal de Faturamento</h3>
+                  <p class="panel-subtitle">Faturamento faturado mês a mês ao longo do tempo</p>
+                </div>
+                <div class="chart-header-controls">
+                  <div class="chart-goal-box" title="Defina a meta mensal para exibir a linha de referência no gráfico">
+                    <span class="goal-label">Meta Mensal</span>
+                    <div class="goal-input-wrap">
+                      <span class="goal-prefix">R$</span>
+                      <input type="text" id="input-meta-mensal" class="goal-input" placeholder="650.000" oninput="onMetaInput('mensal', this.value)">
+                    </div>
+                  </div>
+                  <div class="prev-month-badge" id="badge-superar-mes-ant"></div>
+                </div>
+              </div>
+              <div class="chart-wrapper chart-wrapper-xl">
+                <canvas id="chart-mensal"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráficos de Sazonalidade e Categorias -->
+          <div class="charts-grid-2">
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">🗓️ Curva de Sazonalidade Fabril (Demanda Média por Mês)</h3>
+                  <p class="panel-subtitle">Planejamento de estoque de matéria-prima, compras e escala de produção</p>
+                </div>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-sazonalidade"></canvas>
+              </div>
+            </div>
+
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">📦 Faturamento por Família de Produtos</h3>
+                  <p class="panel-subtitle">Participação percentual de cada categoria no faturamento da fábrica</p>
+                </div>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-categorias"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela Top Clientes -->
+          <div class="card-panel" style="margin-top: 20px;">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">🏆 Principais Clientes Corporativos da Fábrica</h3>
+                <p class="panel-subtitle"></p>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table" id="table-top-clientes">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Cidade / UF</th>
+                    <th>Faturamento Total</th>
+                    <th>Volume Peças</th>
+                    <th>Total Pedidos</th>
+                    <th>Ticket Médio</th>
+                    <th>% Carteira</th>
+                    <th>Última Compra</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-top-clientes">
+                  <!-- Preenchido via Javascript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- =========================================================================
+         TAB 2: ENGENHARIA DE PRODUÇÃO & MATRIZ DECISÓRIA
+         ========================================================================= -->
+        <div id="tab-producao" class="tab-pane">
+
+          <!-- Resumo Curva ABC -->
+          <div class="strategic-banner"
+            style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.1));">
+            <div class="banner-content">
+              <h3 style="color: #34d399;">🎯 Matriz de Decisão Industrial: O que Produzir Mais vs Menos</h3>
+              <p>
+                Para maximizar o lucro e acelerar a fábrica sem criar gargalos nem estoque encalhado, aplicamos a
+                metodologia de Curva ABC e Engenharia de Lote Econômico:
+                <br><strong>Classe A (80% da receita):</strong> Foco absoluto dos tornos e galvanoplastia.
+                <strong>Classe C (82% dos itens geram apenas 5%):</strong> Produzir apenas sob encomenda!
+              </p>
+            </div>
+            <div class="banner-kpis">
+              <div class="banner-stat" style="border-color: rgba(16, 185, 129, 0.4);">
+                <div class="banner-stat-val" style="color: #34d399;" id="stat-abc-a">123 itens</div>
+                <div class="banner-stat-lbl">Classe A (80% Receita)</div>
+              </div>
+              <div class="banner-stat" style="border-color: rgba(244, 63, 94, 0.4);">
+                <div class="banner-stat-val" style="color: #fb7185;" id="stat-abc-c">1.780 itens</div>
+                <div class="banner-stat-lbl">Classe C (Apenas 5%)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Cards da Matriz Industrial -->
+          <div class="matrix-grid">
+            <div class="matrix-card card-produce-more">
+              <div class="matrix-header">
+                <span class="matrix-badge badge-produce-more">AÇÃO IMEDIATA</span>
+                <span style="font-size: 1.4rem;">🚀</span>
+              </div>
+              <h4 class="matrix-title">PRODUZIR MAIS (Expandir Capacidade)</h4>
+              <p class="matrix-desc">
+                Peças Classe A com alta tração e demanda firme (ex: Ponta Cônica PM718, PM720, Mandril, PM838).
+                <strong>Decisão Fabril:</strong> Manter lote contínuo, estoque mínimo de segurança elevado, automatizar
+                usinagem e priorizar nos banhos de galvanoplastia. Nunca deixar faltar.
+              </p>
+              <div class="matrix-footer">
+                <span>Volume: <strong style="color: #34d399;">Alto Giro</strong></span>
+                <span>Estoque: <strong>Lote Grande</strong></span>
+              </div>
+            </div>
+
+            <div class="matrix-card card-maintain">
+              <div class="matrix-header">
+                <span class="matrix-badge badge-maintain">ESTABILIDADE</span>
+                <span style="font-size: 1.4rem;">⚖️</span>
+              </div>
+              <h4 class="matrix-title">MANTER LOTE PADRÃO (Estoque Regulado)</h4>
+              <p class="matrix-desc">
+                Peças Classe A e B com faturamento constante e previsível.
+                <strong>Decisão Fabril:</strong> Operar sob sistema Kanban de reposição periódica. Não inflar o estoque,
+                mas repor assim que atingir o ponto de pedido.
+              </p>
+              <div class="matrix-footer">
+                <span>Volume: <strong style="color: #67e8f9;">Previsível</strong></span>
+                <span>Estoque: <strong>Lote Padrão</strong></span>
+              </div>
+            </div>
+
+            <div class="matrix-card card-reduce">
+              <div class="matrix-header">
+                <span class="matrix-badge badge-reduce">CAUTELA</span>
+                <span style="font-size: 1.4rem;">📦</span>
+              </div>
+              <h4 class="matrix-title">PRODUZIR EM LOTE REDUZIDO</h4>
+              <p class="matrix-desc">
+                Peças Classe B e C intermediárias com demanda espaçada.
+                <strong>Decisão Fabril:</strong> Reduzir o tamanho dos lotes de usinagem para evitar imobilização de
+                matéria-prima (haste de aço e diamante) e liberar máquinas para itens A.
+              </p>
+              <div class="matrix-footer">
+                <span>Volume: <strong style="color: #fbbf24;">Moderado</strong></span>
+                <span>Estoque: <strong>Lote Mínimo</strong></span>
+              </div>
+            </div>
+
+            <div class="matrix-card card-mto">
+              <div class="matrix-header">
+                <span class="matrix-badge badge-mto">OTIMIZAÇÃO RADICAL</span>
+                <span style="font-size: 1.4rem;">⛔</span>
+              </div>
+              <h4 class="matrix-title">PRODUZIR APENAS SOB ENCOMENDA (MTO)</h4>
+              <p class="matrix-desc">
+                Mais de 1.700 peças Classe C com venda esporádica e baixo valor somado.
+                <strong>Decisão Fabril:</strong> ZERO estoque de produto acabado na prateleira. Fabricar única e
+                exclusivamente quando o cliente colocar o pedido formal.
+              </p>
+              <div class="matrix-footer">
+                <span>Volume: <strong style="color: #fb7185;">Baixíssimo</strong></span>
+                <span>Estoque: <strong>Zero (MTO)</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico da Curva ABC e Distribuição de Recomendações -->
+          <div class="charts-grid-2">
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">📊 Pareto da Fábrica: Distribuição de Faturamento por Classe ABC</h3>
+                  <p class="panel-subtitle">Demonstração matemática dos 80% de receita concentrados em poucos itens</p>
+                </div>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-curva-abc"></canvas>
+              </div>
+            </div>
+
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">⚙️ Top 10 Produtos Motores de Lucro da Fábrica</h3>
+                  <p class="panel-subtitle">Peças líderes em faturamento acumulado e unidades vendidas</p>
+                </div>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-top-produtos"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela Interativa de Peças e Recomendações de Produção -->
+          <div class="card-panel" style="margin-top: 20px;">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">📋 Matriz Completa de Peças & Decisão de Produção</h3>
+                <p class="panel-subtitle">Catálogo fabril analisado com status sugerido para cada item</p>
+              </div>
+            </div>
+
+            <!-- Barra de ferramentas da tabela -->
+            <div class="table-toolbar">
+              <input type="text" id="search-produto" class="table-search-input"
+                placeholder="🔍 Buscar peça por código ou nome (ex: PM718, MANDRIL)..." oninput="renderProdutosTable()">
+
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <select class="filter-select" id="filter-rec-status" onchange="renderProdutosTable()">
+                  <option value="todos">Todas as Recomendações</option>
+                  <option value="PRODUZIR MAIS">🚀 PRODUZIR MAIS</option>
+                  <option value="EXPANDIR PRODUÇÃO">📈 EXPANDIR PRODUÇÃO</option>
+                  <option value="MANTER / MONITORAR">⚖️ MANTER / MONITORAR</option>
+                  <option value="MANTER LOTE PADRÃO">🔄 MANTER LOTE PADRÃO</option>
+                  <option value="LOTE MÍNIMO">📦 LOTE MÍNIMO</option>
+                  <option value="SOB ENCOMENDA">⛔ SOB ENCOMENDA (MTO)</option>
+                </select>
+
+                <select class="filter-select" id="filter-curva-abc" onchange="renderProdutosTable()">
+                  <option value="todas">Todas as Classes ABC</option>
+                  <option value="A">Classe A (80% Receita)</option>
+                  <option value="B">Classe B (15% Receita)</option>
+                  <option value="C">Classe C (5% Receita)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table" id="table-produtos">
+                <thead>
+                  <tr>
+                    <th>Peça / Produto Industrial</th>
+                    <th>Família</th>
+                    <th>Curva ABC</th>
+                    <th>Faturamento Total</th>
+                    <th>Volume Peças</th>
+                    <th>Preço Médio</th>
+                    <th>Qtd 2024</th>
+                    <th>Qtd 2025</th>
+                    <th>Qtd 2026</th>
+                    <th>Recomendação Fabril</th>
+                    <th>Lote Sugerido</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-produtos">
+                  <!-- Renderizado via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination-controls">
+              <span id="page-info-produtos">Mostrando 1 a 20 de 2.150 peças</span>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-page" id="btn-prev-page" onclick="changeProductPage(-1)">&larr; Anterior</button>
+                <button class="btn-page" id="btn-next-page" onclick="changeProductPage(1)">Próximo &rarr;</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- =========================================================================
+         TAB 3: VENDAS POR ESTADO & BRASIL
+         ========================================================================= -->
+        <div id="tab-estados" class="tab-pane">
+
+          <!-- Banner de Destaque Geográfico -->
+          <div class="strategic-banner"
+            style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.1));">
+            <div class="banner-content">
+              <h3 style="color: #60a5fa;">🗺️ Inteligência Geográfica de Vendas por Estado (UF)</h3>
+              <p id="geo-banner-desc">
+                A região Sudeste representa 60,1% do faturamento da fábrica, com o Estado de São Paulo isolado na
+                liderança com mais de R$ 10,5 Milhões em vendas.
+                Paraná (R$ 3,61M) e Minas Gerais (R$ 3,38M) completam o pódio, demonstrando forte penetração nos polos
+                industriais e protéticos do Sul e Sudeste.
+              </p>
+            </div>
+            <div class="banner-kpis">
+              <div class="banner-stat">
+                <div class="banner-stat-val" id="geo-stat-regiao1-val" style="color: #60a5fa;">60,1%</div>
+                <div class="banner-stat-lbl" id="geo-stat-regiao1-lbl">Região Sudeste</div>
+              </div>
+              <div class="banner-stat">
+                <div class="banner-stat-val" id="geo-stat-regiao2-val" style="color: #38bdf8;">20,8%</div>
+                <div class="banner-stat-lbl" id="geo-stat-regiao2-lbl">Região Sul</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráficos de Estados e Regiões -->
+          <div class="charts-grid-2">
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">🏆 Ranking de Faturamento por Estado (Top 12 UFs)</h3>
+                  <p class="panel-subtitle">Estados com maior volume de compras em R$</p>
+                </div>
+              </div>
+              <div class="chart-wrapper chart-wrapper-tall">
+                <canvas id="chart-estados"></canvas>
+              </div>
+            </div>
+
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">🌍 Distribuição por Macro-Regiões do Brasil</h3>
+                  <p class="panel-subtitle">Sudeste, Sul, Centro-Oeste, Nordeste, Norte e Exportações</p>
+                </div>
+              </div>
+              <div class="chart-wrapper chart-wrapper-tall">
+                <canvas id="chart-regioes"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grade Visual de Heatmap por Estado -->
+          <div class="card-panel" style="margin-top: 20px;">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">🇧🇷 Painel de Calor por Estado (UF)</h3>
+                <p class="panel-subtitle">Clique em qualquer estado para filtrar imediatamente os indicadores</p>
+              </div>
+            </div>
+
+            <div class="uf-grid" id="uf-heat-grid">
+              <!-- Gerado via Javascript -->
+            </div>
+          </div>
+
+          <!-- Tabela Completa de Estados e Cidades -->
+          <div class="charts-grid-2" style="margin-top: 20px;">
+
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">📊 Detalhamento de Todos os Estados (UF)</h3>
+                  <p class="panel-subtitle">Métricas completas por Unidade Federativa</p>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>UF</th>
+                      <th>Faturamento</th>
+                      <th>Volume Peças</th>
+                      <th>Pedidos</th>
+                      <th>Clientes</th>
+                      <th>Ticket Médio</th>
+                      <th>% Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-estados">
+                    <!-- Javascript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">🏙️ Top 20 Cidades Consumidoras</h3>
+                  <p class="panel-subtitle">Municípios com maior volume financeiro demandado</p>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Cidade</th>
+                      <th>UF</th>
+                      <th>Faturamento</th>
+                      <th>Peças</th>
+                      <th>Clientes</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-cidades">
+                    <!-- Javascript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- =========================================================================
+         TAB BUDGET: PLANEJAMENTO ORÇAMENTÁRIO (BUDGET VS. REALIZADO)
+         ========================================================================= -->
+        <div id="tab-budget" class="tab-pane">
+
+          <!-- Banner Executivo do Módulo de Budget -->
+          <div class="strategic-banner"
+            style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.14), rgba(16, 185, 129, 0.08)); border-color: rgba(6, 182, 212, 0.35);">
+            <div class="banner-content">
+              <h3 style="color: #38bdf8; margin-bottom: 0;">Governança Orçamentária: Budget vs. Realizado</h3>
+            </div>
+            <div class="banner-kpis" style="gap: 12px; align-items: center;">
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">Exercício de Referência</label>
+                <select class="filter-select" id="budget-ano-select" onchange="renderBudgetModule()">
+                  <option value="2026" selected>Exercício 2026 (Atual)</option>
+                  <option value="2027">Exercício 2027 (Planejamento)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI Cards Exclusivos de Budget vs Realizado -->
+          <div class="kpi-grid" id="budget-kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <!-- Preenchido dinamicamente via renderBudgetModule() -->
+          </div>
+
+          <!-- Gráficos de Barras Condicionais: Budget vs Realizado (Anual e Mensal Sazonalizado) -->
+          <div class="charts-grid-2">
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">Comparativo Anual: Realizado vs. Budget Planejado (2026 - 2027)</h3>
+                  <p class="panel-subtitle">Verde: Meta atingida (&ge; 100%) &bull; Âmbar/Vermelho: Abaixo do Budget</p>
+                </div>
+              </div>
+              <div class="chart-wrapper chart-wrapper-xl">
+                <canvas id="chart-budget-anual"></canvas>
+              </div>
+            </div>
+
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title" id="title-chart-budget-mensal">Curva Mensal: Realizado vs. Budget Sazonalizado (2026)</h3>
+                  <p class="panel-subtitle">Comparativo mês a mês com metas ponderadas pela sazonalidade industrial</p>
+                </div>
+              </div>
+              <div class="chart-wrapper chart-wrapper-xl">
+                <canvas id="chart-budget-mensal"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela Analítica Mês a Mês (fato_budget vs Realizado) - 100% Editável -->
+          <div class="card-panel" style="margin-top: 20px;">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title" id="title-table-budget">Demonstrativo Analítico de Controladoria (`fato_budget` vs. Realizado)</h3>
+                <p class="panel-subtitle">Clique nos campos de <strong>Budget Receita (R$)</strong> para editar a meta mês a mês, ou use o preenchimento rápido abaixo</p>
+              </div>
+            </div>
+
+            <!-- Barra de Preenchimento Rápido e Edição em Lote do Budget -->
+            <div class="budget-quick-toolbar">
+              <div class="budget-toolbar-group">
+                <div class="budget-toolbar-item" title="Define uma meta anual total e distribui pelos 12 meses">
+                  <span class="budget-toolbar-label">Meta Anual Total: R$</span>
+                  <input type="text" id="input-quick-budget-anual" class="budget-edit-input" placeholder="8.000.000">
+                  <button type="button" class="btn-budget-mini" onclick="onQuickDistributeAnnualBudget('sazonal')" title="Distribui o valor anual nos 12 meses seguindo a curva sazonal">Distribuir Sazonal</button>
+                  <button type="button" class="btn-budget-mini" onclick="onQuickDistributeAnnualBudget('uniforme')" title="Divide o valor anual igualmente por 12 meses">Dividir /12</button>
+                </div>
+
+                <div class="budget-toolbar-item" title="Define o mesmo valor fixo de meta para todos os 12 meses">
+                  <span class="budget-toolbar-label">Meta Mensal Fixa: R$</span>
+                  <input type="text" id="input-quick-budget-mensal-fixo" class="budget-edit-input" placeholder="650.000">
+                  <button type="button" class="btn-budget-mini" onclick="onQuickApplyUniformMonthlyBudget()">Aplicar nos 12 Meses</button>
+                </div>
+              </div>
+
+              <div class="budget-toolbar-group">
+                <button type="button" class="btn-budget-mini secondary" onclick="onResetCustomBudgetYear()" title="Restaura os valores sugeridos originais para o ano e empresa selecionados">
+                  Restaurar Padrão
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Competência</th>
+                    <th>Budget Receita (R$) ✎</th>
+                    <th>Realizado (R$)</th>
+                    <th>Variância (R$)</th>
+                    <th>% Atingimento</th>
+                    <th>GAP Restante (R$)</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-fato-budget">
+                  <!-- Preenchido via JS -->
+                </tbody>
+                <tfoot id="tfoot-fato-budget">
+                  <!-- Total Anual consolidado dos 12 meses -->
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- =========================================================================
+         TAB PLANO DE GASTOS E INVESTIMENTOS (SIMPLES E DIRETO)
+         ========================================================================= -->
+        <div id="tab-gastos" class="tab-pane">
+
+          <!-- Cabeçalho Simples -->
+          <div class="strategic-banner"
+            style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(6, 182, 212, 0.08)); border-color: rgba(16, 185, 129, 0.35);">
+            <div class="banner-content">
+              <h3 style="color: #34d399; margin-bottom: 0;">Plano de Gastos e Investimentos</h3>
+            </div>
+            <div class="banner-kpis" style="gap: 12px; align-items: center;">
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">Ano</label>
+                <select class="filter-select" id="gastos-ano-select" onchange="renderGastosModule()">
+                  <option value="2027" selected>2027 (Próximo Ano)</option>
+                  <option value="2026">2026 (Atual)</option>
+                </select>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase;">Filtrar Mês</label>
+                <select class="filter-select" id="gastos-mes-filter" onchange="renderGastosModule()">
+                  <option value="todos" selected>Todos os Meses</option>
+                  <option value="1">Janeiro</option>
+                  <option value="2">Fevereiro</option>
+                  <option value="3">Março</option>
+                  <option value="4">Abril</option>
+                  <option value="5">Maio</option>
+                  <option value="6">Junho</option>
+                  <option value="7">Julho</option>
+                  <option value="8">Agosto</option>
+                  <option value="9">Setembro</option>
+                  <option value="10">Outubro</option>
+                  <option value="11">Novembro</option>
+                  <option value="12">Dezembro</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 Cards Limpos: Total Planejado, Já Feito e Não Feito -->
+          <div class="kpi-grid" id="gastos-kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <!-- Preenchido via renderGastosModule() -->
+          </div>
+
+          <!-- Gráfico de Barras Mês a Mês (Feito vs Não Feito) -->
+          <div class="card-panel" style="margin-bottom: 20px;">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title" id="title-chart-gastos-mensal">Evolução Mês a Mês: Planejado vs. Feito (2027)</h3>
+                <p class="panel-subtitle">Acompanhamento mensal em barras: <strong style="color: #10b981;">Verde = Feito</strong> &bull; <strong style="color: #f59e0b;">Âmbar = Não Feito (Pendente)</strong></p>
+              </div>
+            </div>
+            <div class="chart-wrapper" style="height: 300px;">
+              <canvas id="chart-gastos-mensal"></canvas>
+            </div>
+          </div>
+
+          <!-- Lista Simples e Direta de Gastos e Investimentos -->
+          <div class="card-panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title" id="title-table-gastos">Lista do que pretende gastar ou investir em 2027</h3>
+                <p class="panel-subtitle">Adicione abaixo cada item, escolha o mês previsto e marque como <strong>Feito</strong> ou <strong>Não Feito</strong> para validar mês a mês</p>
+              </div>
+            </div>
+
+            <!-- Barra Simples: Nome + Mês + Valor + Botão Adicionar -->
+            <div class="budget-quick-toolbar">
+              <div class="budget-toolbar-group" style="flex: 1;">
+                <div class="budget-toolbar-item" style="flex: 1; min-width: 240px;">
+                  <span class="budget-toolbar-label">Com o que pretende gastar:</span>
+                  <input type="text" id="input-new-gasto-nome" class="budget-edit-input" style="width: 100%; text-align: left;" placeholder="Ex: Compra de máquina, Reforma..." onkeydown="if(event.key==='Enter'){document.getElementById('input-new-gasto-anual').focus();}">
+                </div>
+
+                <div class="budget-toolbar-item">
+                  <span class="budget-toolbar-label">Mês:</span>
+                  <select id="select-new-gasto-mes" class="filter-select" style="padding: 4px 10px; font-size: 0.82rem;">
+                    <option value="1">Janeiro</option>
+                    <option value="2">Fevereiro</option>
+                    <option value="3">Março</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Maio</option>
+                    <option value="6">Junho</option>
+                    <option value="7">Julho</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+                    <option value="anual">Ano Todo</option>
+                  </select>
+                </div>
+
+                <div class="budget-toolbar-item">
+                  <span class="budget-toolbar-label">Valor Previsto: R$</span>
+                  <input type="text" id="input-new-gasto-anual" class="budget-edit-input" style="width: 130px;" placeholder="0,00" onkeydown="if(event.key==='Enter'){onAddGastoItem();}">
+                </div>
+
+                <button type="button" class="btn-budget-mini" style="padding: 7px 16px; font-size: 0.82rem;" onclick="onAddGastoItem()">+ Adicionar</button>
+              </div>
+
+              <div class="budget-toolbar-group">
+                <button type="button" class="btn-budget-mini secondary" onclick="onClearAllGastosYear()" title="Limpa todos os valores da lista">
+                  Limpar Tudo
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th style="width: 40%;">Com o que pretende gastar / investir ✎</th>
+                    <th style="width: 18%;">Mês Previsto ✎</th>
+                    <th style="width: 18%;">Valor Previsto (R$) ✎</th>
+                    <th style="width: 15%; text-align: center;">Validação (Status)</th>
+                    <th style="width: 9%; text-align: center;">Remover</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-plano-gastos">
+                  <!-- Preenchido via JS -->
+                </tbody>
+                <tfoot id="tfoot-plano-gastos">
+                  <!-- Total Geral -->
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- =========================================================================
+         TAB 4: EQUILÍBRIO FISCAL & SPLIT (MB VS MODERNA)
+         ========================================================================= -->
+        <div id="tab-split" class="tab-pane">
+
+          <!-- Banner Estratégico Tributário -->
+          <div class="strategic-banner"
+            style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(6, 182, 212, 0.1)); border-color: rgba(168, 85, 247, 0.4);">
+            <div class="banner-content">
+              <h3 style="color: #c084fc;">⚖️ Inteligência Tributária: Balanceamento Empresa 1 &amp; Empresa 2</h3>
+              <p>
+                A divisão de faturamento entre os dois CNPJs visa manter ambas as empresas dentro das faixas mais baixas
+                do <strong>Simples Nacional</strong>, evitando o desenquadramento (teto de R$ 4,8 Milhões/ano) e a
+                cobrança avulsa de ICMS (sublimite de R$ 3,6 Milhões/ano).
+                <br><span style="color: #fbbf24;">⚠️ <strong>Diagnóstico Crítico:</strong> Em 2024 e 2025 a Empresa 1 estourou
+                  o teto de R$ 4,8M porque a emissão de notas na Empresa 2 foi inferior a 30%. O equilíbrio ideal requer
+                  dividir o faturamento em aproximadamente 50% / 50%!</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Barra de Medição / Split Gauge do Ano Atual e Histórico -->
+          <div class="split-gauge-card">
+            <div class="split-gauge-header">
+              <div>
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">Divisão de Faturamento por Ano (Split
+                  Empresa 1 vs Empresa 2)</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Proporção de notas emitidas por cada empresa</p>
+              </div>
+              <select class="filter-select" id="split-ano-select" onchange="renderSplitAnalysis()">
+                <option value="2026">Ano 2026 (YTD)</option>
+                <option value="2025">Ano 2025</option>
+                <option value="2024">Ano 2024</option>
+                <option value="2023">Ano 2023</option>
+                <option value="2022">Ano 2022</option>
+              </select>
+            </div>
+
+            <div class="progress-bar-container">
+              <div class="progress-bar-mb" id="bar-split-mb" style="width: 66.6%;">Empresa 1: 66.6%</div>
+              <div class="progress-bar-mod" id="bar-split-mod" style="width: 33.4%;">Empresa 2: 33.4%</div>
+            </div>
+
+            <div
+              style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px;">
+              <span style="color: #38bdf8;" id="label-split-mb">⚙️ Empresa 1: R$ 3.538.180,48 (66.6%)</span>
+              <span style="color: #c084fc;" id="label-split-mod">💎 Empresa 2: R$ 1.776.656,18 (33.4%)</span>
+            </div>
+
+            <!-- Indicadores de Risco Fiscal Simples Nacional -->
+            <div class="tax-limit-indicator" id="tax-indicator-cards">
+              <!-- Preenchido via Javascript -->
+            </div>
+
+          </div>
+
+          <!-- Gráfico Comparativo Empresa 1 vs Empresa 2 -->
+          <div class="card-panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">📊 Evolução Comparativa de Faturamento: Empresa 1 vs Empresa 2 (2020 a 2026)</h3>
+                <p class="panel-subtitle">Acompanhe se a divisão de faturamento está convergindo para o equilíbrio ideal
+                </p>
+              </div>
+            </div>
+            <div class="chart-wrapper chart-wrapper-tall">
+              <canvas id="chart-split-historico"></canvas>
+            </div>
+          </div>
+
+          <!-- SIMULADOR INTERATIVO DE SPLIT TRIBUTÁRIO -->
+          <div class="simulator-box">
+            <div class="simulator-header">
+              <div>
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: #67e8f9;">🧮 Simulador de Planejamento de Split
+                  Ideal</h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">
+                  Arraste o cursor abaixo para simular a divisão ótima de faturamento entre a Empresa 1 e a Empresa 2 e veja na
+                  hora o enquadramento fiscal
+                </p>
+              </div>
+            </div>
+
+            <div class="simulator-controls">
+              <div class="control-item">
+                <label>Faturamento Anual Previsto do Grupo (R$):</label>
+                <input type="number" id="sim-fat-total" class="filter-select"
+                  style="width: 100%; font-size: 1rem; font-weight: 700;" value="7500000" step="100000"
+                  oninput="runSplitSimulation()">
+              </div>
+
+              <div class="control-item">
+                <label>Distribuição Pretendida (% Empresa 1 vs % Empresa 2):</label>
+                <input type="range" id="sim-slider-split" min="10" max="90" value="50" oninput="runSplitSimulation()">
+                <div class="range-display" id="sim-slider-label">50% Empresa 1 / 50% Empresa 2 (Equilíbrio Perfeito)</div>
+              </div>
+            </div>
+
+            <div class="simulator-results" id="sim-split-results">
+              <!-- Preenchido via Javascript -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- =========================================================================
+         TAB 5: PRODUTIVIDADE & LUCRO POR COLABORADOR
+         ========================================================================= -->
+        <div id="tab-colaboradores" class="tab-pane">
+
+          <!-- Banner Informativo -->
+          <div class="strategic-banner"
+            style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.1));">
+            <div class="banner-content">
+              <h3 style="color: #34d399;">👥 Engenharia de Mão de Obra Fabril & Produtividade per Capita</h3>
+              <p>
+                Módulo dedicado ao retorno financeiro de cada colaborador na indústria.
+                <br>Apresenta a <strong>Receita gerada por colaborador</strong>, <strong>Custo Total de Folha</strong>
+                (salários + encargos), <strong>Margem de Contribuição Líquida</strong> e o <strong>Múltiplo de Retorno
+                  (ROI)</strong> da equipe.
+                <br><span style="color: #67e8f9;">💡 A fábrica pode carregar a planilha real de custos de funcionários
+                  salvando o arquivo <strong>CUSTO COLABORADORES.xlsx</strong> na pasta.</span>
+              </p>
+            </div>
+            <div class="banner-kpis">
+              <div class="banner-stat" style="border-color: rgba(16, 185, 129, 0.4);">
+                <div class="banner-stat-val" style="color: #34d399;" id="stat-colab-headcount">18</div>
+                <div class="banner-stat-lbl">Colaboradores Fabris</div>
+              </div>
+              <div class="banner-stat" style="border-color: rgba(6, 182, 212, 0.4);">
+                <div class="banner-stat-val" style="color: #67e8f9;" id="stat-colab-roi">6,7x</div>
+                <div class="banner-stat-lbl">Retorno s/ Folha (ROI)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPIs de Produtividade per Capita -->
+          <div class="kpi-grid">
+            <div class="kpi-card emerald">
+              <div class="kpi-header">
+                <span class="kpi-title">Faturamento per Capita / Mês</span>
+                <span class="kpi-icon">📈</span>
+              </div>
+              <div class="kpi-value" id="kpi-fat-per-capita">R$ 34.286,81</div>
+              <div class="kpi-sub">Por colaborador a cada mês</div>
+            </div>
+
+            <div class="kpi-card cyan">
+              <div class="kpi-header">
+                <span class="kpi-title">Peças vendidas / Operador</span>
+                <span class="kpi-icon">⚙️</span>
+              </div>
+              <div class="kpi-value" id="kpi-pecas-per-capita">6.480 un</div>
+              <div class="kpi-sub">Produtividade física mensal</div>
+            </div>
+
+            <div class="kpi-card blue">
+              <div class="kpi-header">
+                <span class="kpi-title">Custo Médio / Colaborador</span>
+                <span class="kpi-icon">💼</span>
+              </div>
+              <div class="kpi-value" id="kpi-custo-colab">R$ 4.575,00</div>
+              <div class="kpi-sub">Salário Base + Encargos CLT</div>
+            </div>
+
+            <div class="kpi-card amber">
+              <div class="kpi-header">
+                <span class="kpi-title">Lucro Operacional Líquido / Operador</span>
+                <span class="kpi-icon">💎</span>
+              </div>
+              <div class="kpi-value" id="kpi-margem-colab">R$ 29.711,81</div>
+              <div class="kpi-sub">Receita menos custo de MO</div>
+            </div>
+
+            <div class="kpi-card purple">
+              <div class="kpi-header">
+                <span class="kpi-title">Índice de Folha s/ Faturamento</span>
+                <span class="kpi-icon">📊</span>
+              </div>
+              <div class="kpi-value" id="kpi-indice-folha">14,8%</div>
+              <div class="kpi-sub"><span style="color: #34d399;">Excelente</span> (Indústria: 15-25%)</div>
+            </div>
+          </div>
+
+          <!-- ===================================================================
+               RAIO-X ANALÍTICO DOS HOLERITES (HORA EXTRA, VALES, ADICIONAIS)
+               =================================================================== -->
+          <div class="card-panel" style="border: 1px solid rgba(56, 189, 248, 0.28);">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 class="panel-title">📑 Detalhamento dos Holerites: Horas Extras, Vales, Benefícios &amp; Adicionais</h3>
+                <p class="panel-subtitle">Separação exata de cada verba paga ou adiantada nos holerites oficiais da empresa (clique em um card ou use o filtro para expandir as rubricas)</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <label for="rh-filter-rubrica-grupo" style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; text-transform: uppercase;">🔍 Rubricas:</label>
+                <select id="rh-filter-rubrica-grupo" class="filter-select" onchange="onRhHoleriteFilterChange('rubrica')" style="min-width: 230px; font-weight: 700; border-color: rgba(56, 189, 248, 0.45);">
+                  <option value="oculto" selected>🔽 Ocultar Tabela (Modo Compacto)</option>
+                  <option value="Salário Base & Pró-Labore">💼 Salário Base &amp; Pró-Labore</option>
+                  <option value="Horas Extras & DSR">⏱️ Horas Extras &amp; DSR</option>
+                  <option value="Vales & Benefícios">🍱 Vale Alimentação &amp; Benefícios</option>
+                  <option value="Adicionais, Comissões & Bônus">🏆 Comissões, Gratificações &amp; Bônus</option>
+                  <option value="Vales & Adiantamentos Salariais">💸 Vales &amp; Adiantamentos Salariais</option>
+                  <option value="Férias & 1/3 Constitucional">🏖️ Férias &amp; 1/3 Constitucional</option>
+                  <option value="Impostos & Encargos">🏛️ Impostos Retidos &amp; FGTS</option>
+                  <option value="todas">📋 Ver Todas as Rubricas</option>
+                </select>
+
+                <label for="rh-holerite-mes-select" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">📅 Mês:</label>
+                <select id="rh-holerite-mes-select" class="filter-select" onchange="onRhHoleriteFilterChange('top')" style="min-width: 220px; font-weight: 700;">
+                  <option value="acumulado">📊 Total Acumulado (12 Meses)</option>
+                  <option value="media">📅 Média Mensal (Por Mês)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 5 Cards de Separação Direta dos Gastos do Holerite (Clicáveis para filtrar rubricas) -->
+            <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 12px; margin-bottom: 6px;">
+              <div class="kpi-card blue" onclick="toggleRubricaCategoryFilter('Salário Base & Pró-Labore')" style="cursor: pointer;" title="Clique para detalhar as rubricas de Salário Base & Pró-Labore">
+                <div class="kpi-header">
+                  <span class="kpi-title">Salário Base &amp; Pró-Labore</span>
+                  <span class="kpi-icon">💼</span>
+                </div>
+                <div class="kpi-value" id="rh-card-sal-base">R$ 0,00</div>
+                <div class="kpi-sub" id="rh-card-sal-base-sub">Mensalistas, Horistas, Pró-Labore e Estágio</div>
+              </div>
+
+              <div class="kpi-card amber" onclick="toggleRubricaCategoryFilter('Horas Extras & DSR')" style="cursor: pointer;" title="Clique para detalhar as rubricas de Horas Extras + DSR">
+                <div class="kpi-header">
+                  <span class="kpi-title">Horas Extras + DSR</span>
+                  <span class="kpi-icon">⏱️</span>
+                </div>
+                <div class="kpi-value" id="rh-card-he-total" style="color: #fbbf24;">R$ 0,00</div>
+                <div class="kpi-sub" id="rh-card-he-sub">Horas Extras (70%/110%) + Reflexo DSR</div>
+              </div>
+
+              <div class="kpi-card emerald" onclick="toggleRubricaCategoryFilter('Vales & Benefícios')" style="cursor: pointer;" title="Clique para detalhar as rubricas de Vale Alimentação & Benefícios">
+                <div class="kpi-header">
+                  <span class="kpi-title">Vale Alimentação &amp; Benefícios</span>
+                  <span class="kpi-icon">🍱</span>
+                </div>
+                <div class="kpi-value" id="rh-card-vale-alim" style="color: #34d399;">R$ 0,00</div>
+                <div class="kpi-sub" id="rh-card-vale-alim-sub">VA (Cód. 105) + Ajuda de Custo + Reembolso</div>
+              </div>
+
+              <div class="kpi-card cyan" onclick="toggleRubricaCategoryFilter('Adicionais, Comissões & Bônus')" style="cursor: pointer;" title="Clique para detalhar as rubricas de Comissões, Gratificações & Bônus">
+                <div class="kpi-header">
+                  <span class="kpi-title">Comissões, Gratificações &amp; Bônus</span>
+                  <span class="kpi-icon">🏆</span>
+                </div>
+                <div class="kpi-value" id="rh-card-adicionais" style="color: #38bdf8;">R$ 0,00</div>
+                <div class="kpi-sub" id="rh-card-adicionais-sub">Comissões + Gratificações + Bônus</div>
+              </div>
+
+              <div class="kpi-card" onclick="toggleRubricaCategoryFilter('Vales & Adiantamentos Salariais')" style="border-left: 4px solid #f43f5e; cursor: pointer;" title="Clique para detalhar as rubricas de Vales & Adiantamentos Salariais">
+                <div class="kpi-header">
+                  <span class="kpi-title">Vales &amp; Adiantamentos Salariais</span>
+                  <span class="kpi-icon">💸</span>
+                </div>
+                <div class="kpi-value" id="rh-card-adiantamento" style="color: #fb7185;">R$ 0,00</div>
+                <div class="kpi-sub" id="rh-card-adiantamento-sub">Vale Quinzenal (600) + Vale Extra (603/606)</div>
+              </div>
+            </div>
+
+            <!-- Tabela Analítica de Rubricas do Holerite (Oculta por padrão para economizar espaço, exibida ao filtrar) -->
+            <div class="table-responsive" id="rh-rubricas-table-wrap" style="display: none; margin-top: 14px;">
+              <table class="custom-table rh-compact-table">
+                <thead>
+                  <tr>
+                    <th>Cód.</th>
+                    <th>Rubrica / Evento do Holerite</th>
+                    <th>Grupo / Classificação</th>
+                    <th>Natureza</th>
+                    <th style="text-align: right;">Qtd. Horas / Ref.</th>
+                    <th style="text-align: right;">Valor no Período (R$)</th>
+                    <th style="text-align: right;">Média Mensal (R$)</th>
+                    <th style="text-align: right;">% s/ Bruto</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-holerite-rubricas">
+                  <!-- Preenchido via Javascript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Gráfico e Tabela de Evolução Histórica da Folha (12 Meses) -->
+          <div class="card-panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">📈 Evolução Histórica da Folha de Pagamento (Novembro/2025 a Outubro/2026)</h3>
+                <p class="panel-subtitle">Acompanhamento mês a mês de salários, horas extras, vales, adicionais e encargos da fábrica</p>
+              </div>
+              <span class="badge-live" id="badge-folha-periodo">Período: 12 Meses Fechados</span>
+            </div>
+            <div class="chart-wrapper chart-wrapper-tall">
+              <canvas id="chart-folha-evolucao"></canvas>
+            </div>
+
+            <!-- Tabela Resumo Mês a Mês da Folha -->
+            <div class="table-responsive" style="margin-top: 16px;">
+              <table class="custom-table rh-compact-table">
+                <thead>
+                  <tr>
+                    <th>Mês</th>
+                    <th>Equipe</th>
+                    <th>Salário Base</th>
+                    <th>Horas Extras + DSR</th>
+                    <th>Vale Alim.</th>
+                    <th>Comis. / Bônus</th>
+                    <th>Férias + 1/3</th>
+                    <th>Vale Quinzena <small style="display:block; font-weight:400; opacity:0.75;">(Adiantado)</small></th>
+                    <th>FGTS (8%)</th>
+                    <th style="text-align: right;">Custo Total Folha</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-folha-mensal">
+                  <!-- Preenchido via Javascript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Rankings em Gráfico de Barras: Horas Extras, Maiores Salários Base e Maiores Comissões -->
+          <div class="card-panel" style="border: 1px solid rgba(251, 191, 36, 0.28);">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 class="panel-title">🏆 Rankings de Colaboradores: Horas Extras, Maiores Salários Base &amp; Maiores Comissões</h3>
+                <p class="panel-subtitle" id="rh-ranking-subtitle">Comparativo individual em gráfico de barras conforme o período ou mês selecionado</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <label for="ranking-mes-select" style="font-size: 0.78rem; font-weight: 700; color: #fbbf24; text-transform: uppercase;">🗓️ Filtrar Período / Mês:</label>
+                <select id="ranking-mes-select" class="filter-select" onchange="onRhHoleriteFilterChange('ranking')" style="min-width: 240px; font-weight: 700; border-color: rgba(251, 191, 36, 0.5);">
+                  <option value="acumulado">📊 Total Acumulado (12 Meses)</option>
+                  <option value="media">📅 Média Mensal (Por Mês)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="charts-grid-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 18px; margin-top: 8px;">
+              <!-- Gráfico 1: Ranking de Horas Extras + DSR -->
+              <div style="background: rgba(15, 23, 42, 0.35); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <div>
+                    <h4 style="font-size: 0.9rem; font-weight: 700; color: #fbbf24; margin: 0;">⏱️ Top Horas Extras + DSR</h4>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Funcionários que mais fizeram hora extra (R$ e Horas)</span>
+                  </div>
+                </div>
+                <div class="chart-wrapper" style="height: 310px;">
+                  <canvas id="chart-rh-rank-he"></canvas>
+                </div>
+              </div>
+
+              <!-- Gráfico 2: Ranking de Maiores Salários Base -->
+              <div style="background: rgba(15, 23, 42, 0.35); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <div>
+                    <h4 style="font-size: 0.9rem; font-weight: 700; color: #38bdf8; margin: 0;">💼 Maiores Salários Base</h4>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Top salários base &amp; pró-labore pagos no período</span>
+                  </div>
+                </div>
+                <div class="chart-wrapper" style="height: 310px;">
+                  <canvas id="chart-rh-rank-salario"></canvas>
+                </div>
+              </div>
+
+              <!-- Gráfico 3: Ranking de Maiores Comissões (Rubrica 023) -->
+              <div style="background: rgba(15, 23, 42, 0.35); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <div>
+                    <h4 style="font-size: 0.9rem; font-weight: 700; color: #34d399; margin: 0;">🏆 Maiores Comissões (Cód. 023)</h4>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Colaboradores com maiores comissões comerciais no holerite</span>
+                  </div>
+                </div>
+                <div class="chart-wrapper" style="height: 310px;">
+                  <canvas id="chart-rh-rank-comissoes"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela da Equipe e Simulador -->
+          <div class="card-panel">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 class="panel-title">📋 Quadro de Colaboradores Ativos &amp; Detalhamento Individual por Holerite</h3>
+                <p class="panel-subtitle" id="colab-file-source">Base carregada dos Holerites Oficiais (valores conforme o filtro de período selecionado)</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button type="button" onclick="openOrganogramaSection()" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.35); border-radius: 6px; padding: 6px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+                  🏛️ Ver Organograma
+                </button>
+                <label for="colab-mes-select" style="font-size: 0.78rem; font-weight: 700; color: #38bdf8; text-transform: uppercase;">🗓️ Escolher Mês:</label>
+                <select id="colab-mes-select" class="filter-select" onchange="onRhHoleriteFilterChange('colab')" style="min-width: 240px; font-weight: 700; border-color: rgba(56, 189, 248, 0.5);">
+                  <option value="acumulado">📊 Total Acumulado (12 Meses)</option>
+                  <option value="media">📅 Média Mensal (Por Mês)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table rh-compact-table" id="table-colaboradores">
+                <thead>
+                  <tr>
+                    <th>Colaborador</th>
+                    <th>Cargo / Setor</th>
+                    <th>Salário Base</th>
+                    <th>Horas Extras + DSR</th>
+                    <th>Vale Alim.</th>
+                    <th>Comis. / Bônus</th>
+                    <th>Vale Quinzena <small style="display:block; font-weight:400; opacity:0.75;">(Adiantado)</small></th>
+                    <th>FGTS (8%)</th>
+                    <th style="text-align: right;">Custo Total Folha</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-colaboradores">
+                  <!-- Javascript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ===================================================================
+               ORGANOGRAMA CORPORATIVO & INDUSTRIAL (EMPRESA 1 & EMPRESA 2)
+               =================================================================== -->
+          <div class="card-panel" id="rh-organograma-panel" style="margin-top: 24px; border: 1px solid rgba(2, 132, 199, 0.35);">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 class="panel-title">🏛️ Organograma Corporativo &amp; Estrutura Organizacional por Setor</h3>
+                <p class="panel-subtitle" id="org-subtitle-info">Hierarquia funcional, lideranças e distribuição das equipes da Empresa 1 e da Empresa 2</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button type="button" id="btn-toggle-org-valores" onclick="toggleOrgChartValues()" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 6px; padding: 6px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+                  👁️ Ocultar Valores no Organograma
+                </button>
+              </div>
+            </div>
+
+            <!-- Resumo Rápido por Nível / Área -->
+            <div id="org-summary-strip" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+              <!-- Preenchido via JS -->
+            </div>
+
+            <!-- Árvore Visual do Organograma -->
+            <div id="org-tree-container" style="padding: 8px 4px;">
+              <!-- Preenchido via JS -->
+            </div>
+          </div>
+
+          <!-- Simulador de Contratação e Impacto na Folha -->
+          <div class="simulator-box" style="margin-top: 24px;">
+            <div class="simulator-header">
+              <div>
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: #34d399;">🧮 Simulador de Capacidade de Equipe &
+                  Impacto na Margem</h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">
+                  Simule a contratação de novos operadores de torno/galvanoplastia e veja o impacto na produção e na
+                  margem da fábrica
+                </p>
+              </div>
+            </div>
+
+            <div class="simulator-controls">
+              <div class="control-item">
+                <label>Número de Colaboradores na Fábrica:</label>
+                <input type="range" id="sim-colab-count" min="5" max="50" value="18" oninput="runColabSimulation()">
+                <div class="range-display" id="sim-colab-count-label">18 Colaboradores</div>
+              </div>
+
+              <div class="control-item">
+                <label>Custo Médio por Colaborador (R$/mês com encargos):</label>
+                <input type="number" id="sim-colab-cost" class="filter-select"
+                  style="width: 100%; font-size: 1rem; font-weight: 700;" value="4575" step="100"
+                  oninput="runColabSimulation()">
+              </div>
+            </div>
+
+            <div class="simulator-results" id="sim-colab-results">
+              <!-- Preenchido via Javascript -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- =========================================================================
+         TAB 6: BACKLOG & PENDÊNCIAS FABRIS
+         ========================================================================= -->
+        <div id="tab-backlog" class="tab-pane">
+
+          <div class="strategic-banner"
+            style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(244, 63, 94, 0.1)); border-color: rgba(245, 158, 11, 0.4);">
+            <div class="banner-content">
+              <h3 style="color: #fbbf24;">📦 Gestão de Backlog Fabril & Pedidos Pendentes</h3>
+              <p>
+                Monitoramento em tempo real dos pedidos em aberto, ordens de produção aguardando matéria-prima (lixas,
+                pontas diamantadas) e prazos limites de entrega para clientes.
+                <br>Dados extraídos diretamente da planilha de chão de fábrica <strong>PEDIDOS PENDENTES
+                  2026.xlsx</strong>.
+              </p>
+            </div>
+            <div class="banner-kpis">
+              <div class="banner-stat" style="border-color: rgba(245, 158, 11, 0.4);">
+                <div class="banner-stat-val" style="color: #fbbf24;" id="stat-backlog-valor">R$ 51.280,00</div>
+                <div class="banner-stat-lbl">Valor Total Retido</div>
+              </div>
+              <div class="banner-stat" style="border-color: rgba(6, 182, 212, 0.4);">
+                <div class="banner-stat-val" style="color: #67e8f9;" id="stat-backlog-qtd">14</div>
+                <div class="banner-stat-lbl">Pedidos na Fila</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">⏳ Fila de Pedidos Pendentes e Status da Produção</h3>
+                <p class="panel-subtitle">Ordens aguardando finalização no setor de usinagem ou suprimentos</p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table" id="table-backlog">
+                <thead>
+                  <tr>
+                    <th>Data do Pedido</th>
+                    <th>Data Limite de Entrega</th>
+                    <th>Cliente</th>
+                    <th>Valor do Pedido (R$)</th>
+                    <th>Status Atual / Gargalo Fabril</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-backlog">
+                  <!-- Javascript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- =========================================================================
+         TAB: CLIENTES INATIVOS & RESGATE DE CHURN
+         ========================================================================= -->
+        <div id="tab-churn" class="tab-pane">
+
+          <!-- Banner Estratégico de Churn -->
+          <div class="strategic-banner"
+            style="background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(245, 158, 11, 0.1)); border-color: rgba(244, 63, 94, 0.4);">
+            <div class="banner-content">
+              <h3 style="color: #fb7185;">🚨 Inteligência Comercial: Resgate de Clientes Inativos & Churn</h3>
+              <p>
+                Mapeamento analítico de todos os clientes que compravam da fábrica e pararam de comprar.
+                <br>Identificamos <strong>1.260 clientes inativos em 2026</strong>, representando mais de <strong>R$
+                  10,0 Milhões</strong> em faturamento histórico.
+                <br><span style="color: #facc15;">🎯 <strong>Alvo Prioritário:</strong> Existem <strong>35 clientes VIP
+                    de alto valor</strong> (faturamento histórico superior a R$ 50.000 cada) que estão sem comprar há
+                  mais de 4 a 12 meses. O resgate de apenas 20% a 30% desses clientes pode injetar mais de <strong>R$
+                    1,5 a R$ 2,5 Milhões</strong> de faturamento novo imediato na fábrica!</span>
+              </p>
+            </div>
+            <div class="banner-kpis">
+              <div class="banner-stat" style="border-color: rgba(244, 63, 94, 0.4);">
+                <div class="banner-stat-val" style="color: #fb7185;" id="stat-churn-vip-count">35</div>
+                <div class="banner-stat-lbl">Clientes VIP em Churn</div>
+              </div>
+              <div class="banner-stat" style="border-color: rgba(16, 185, 129, 0.4);">
+                <div class="banner-stat-val" style="color: #34d399;" id="stat-churn-potencial">R$ 2,5M+</div>
+                <div class="banner-stat-lbl">Potencial de Resgate</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPIs de Churn -->
+          <div class="kpi-grid">
+            <div class="kpi-card rose">
+              <div class="kpi-header">
+                <span class="kpi-title">Clientes Inativos (Sem Compras em 2026)</span>
+                <span class="kpi-icon">🚪</span>
+              </div>
+              <div class="kpi-value" id="kpi-churn-inativos">1.260</div>
+              <div class="kpi-sub"><span style="color: #fb7185;">64,4% da base histórica</span></div>
+            </div>
+
+            <div class="kpi-card amber">
+              <div class="kpi-header">
+                <span class="kpi-title">Faturamento Histórico em Risco</span>
+                <span class="kpi-icon">💸</span>
+              </div>
+              <div class="kpi-value" id="kpi-churn-faturamento">R$ 10.067.263,62</div>
+              <div class="kpi-sub">Total já faturado com esses clientes</div>
+            </div>
+
+            <div class="kpi-card purple">
+              <div class="kpi-header">
+                <span class="kpi-title">Clientes VIP Perdidos (> R$ 50k)</span>
+                <span class="kpi-icon">👑</span>
+              </div>
+              <div class="kpi-value" id="kpi-churn-vip">35 clientes</div>
+              <div class="kpi-sub"><span style="color: #c084fc;">Alvo comercial número 1</span></div>
+            </div>
+
+            <div class="kpi-card cyan">
+              <div class="kpi-header">
+                <span class="kpi-title">Inativos Recentes (Compraram em 2025)</span>
+                <span class="kpi-icon">⏳</span>
+              </div>
+              <div class="kpi-value" id="kpi-churn-recentes">313 clientes</div>
+              <div class="kpi-sub">Maior probabilidade de reativação</div>
+            </div>
+
+            <div class="kpi-card emerald">
+              <div class="kpi-header">
+                <span class="kpi-title">Potencial de Faturamento Resgatável</span>
+                <span class="kpi-icon">🎯</span>
+              </div>
+              <div class="kpi-value" id="kpi-churn-recuperavel">R$ 2.516.000,00</div>
+              <div class="kpi-sub"><span style="color: #34d399;">Meta: Reativar 25% dos VIPs</span></div>
+            </div>
+          </div>
+
+          <!-- Gráficos de Churn -->
+          <div class="charts-grid-2">
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">⏱️ Distribuição de Inativos por Tempo Sem Comprar</h3>
+                  <p class="panel-subtitle">Segmentação cronológica para abordagem comercial da equipe</p>
+                </div>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-churn-tempo"></canvas>
+              </div>
+            </div>
+
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">🏆 Top 10 Clientes Perdidos de Maior Faturamento</h3>
+                  <p class="panel-subtitle">Grandes compradores históricos que pararam de colocar pedidos em 2026</p>
+                </div>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="chart-top-churn"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela Interativa de Resgate Comercial -->
+          <div class="card-panel" style="margin-top: 20px;">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-title">📋 Lista Estratégica de Resgate de Clientes Inativos</h3>
+                <p class="panel-subtitle">Planilha de ação para a gerência de vendas e representantes comerciais</p>
+              </div>
+              <button class="btn-action" onclick="exportChurnCSV()"
+                style="background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(245, 158, 11, 0.3)); border-color: rgba(244, 63, 94, 0.5); color: #fda4af;">
+                📥 Exportar Lista de Resgate (Excel)
+              </button>
+            </div>
+
+            <div class="table-toolbar">
+              <input type="text" id="search-churn" class="table-search-input"
+                placeholder="🔍 Buscar cliente inativo por nome ou cidade..." oninput="renderChurnTable()">
+
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <select class="filter-select" id="filter-churn-prioridade" onchange="renderChurnTable()">
+                  <option value="todos">Todas as Prioridades</option>
+                  <option value="URGENTE">🚨 URGENTE (VIP > R$ 50k)</option>
+                  <option value="ALTA">🔴 ALTA (R$ 15k a R$ 50k)</option>
+                  <option value="MÉDIA">⚠️ MÉDIA (Inativo Recente)</option>
+                  <option value="BAIXA">💤 BAIXA (Longo Prazo)</option>
+                </select>
+
+                <select class="filter-select" id="filter-churn-tempo" onchange="renderChurnTable()">
+                  <option value="todos">Todos os Períodos de Inatividade</option>
+                  <option value="recente">Até 9 meses (Inativos Recentes)</option>
+                  <option value="medio">9 a 18 meses (Compraram em 2024/2025)</option>
+                  <option value="longo">Mais de 18 meses (Longo Prazo)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Barra de Controle de Exclusão Manual (Análise Manual de Churn) -->
+            <div id="churn-manual-exclusion-bar" style="display: none; margin-bottom: 12px; padding: 10px 14px; border-radius: 8px; background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.3); align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.84rem; color: var(--text-main);">
+                <span>🚫</span>
+                <span id="churn-excluded-summary"><strong>0 clientes</strong> retirados manualmente da análise</span>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn-page" onclick="toggleExcludedChurnDrawer()" style="font-size: 0.78rem; padding: 5px 10px;">
+                  👁️ Ver / Restaurar Retirados
+                </button>
+                <button type="button" class="btn-page" onclick="restoreAllChurnClients()" style="font-size: 0.78rem; padding: 5px 10px; border-color: rgba(244, 63, 94, 0.45); color: #f43f5e; font-weight: 600;">
+                  ↺ Restaurar Todos
+                </button>
+              </div>
+            </div>
+
+            <!-- Gaveta expansível com a lista de clientes retirados manualmente -->
+            <div id="churn-excluded-drawer" style="display: none; margin-bottom: 14px; padding: 12px 14px; border-radius: 8px; background: var(--bg-card-alt); border: 1px solid var(--border-color);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <strong style="font-size: 0.82rem; color: var(--text-main);">Clientes Retirados Manualmente (Clique em Restaurar para devolver à lista):</strong>
+                <button type="button" onclick="toggleExcludedChurnDrawer()" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem;">✕ Fechar</button>
+              </div>
+              <div id="churn-excluded-list" style="display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px; overflow-y: auto;"></div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table" id="table-churn">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Cidade / UF</th>
+                    <th>Faturamento Histórico</th>
+                    <th>Pedidos</th>
+                    <th>Volume Peças</th>
+                    <th>Ticket Médio</th>
+                    <th>Última Compra</th>
+                    <th>Dias Sem Comprar</th>
+                    <th style="text-align: center;">Prioridade / Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-churn">
+                  <!-- Javascript -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination-controls">
+              <span id="page-info-churn">Mostrando 1 a 20 de 1.260 clientes inativos</span>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-page" id="btn-prev-churn" onclick="changeChurnPage(-1)">&larr; Anterior</button>
+                <button class="btn-page" id="btn-next-churn" onclick="changeChurnPage(1)">Próximo &rarr;</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- =========================================================================
+         TAB: ENGENHARIA DE CUSTOS INDUSTRIAIS & FORMAÇÃO DE PREÇO (PRICING)
+         ========================================================================= -->
+        <div id="tab-custos" class="tab-pane">
+
+          <!-- Banner Estratégico de Custos & Pricing -->
+          <div class="strategic-banner"
+            style="background: linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(16, 185, 129, 0.1)); border-color: rgba(56, 189, 248, 0.35);">
+            <div class="banner-content">
+              <h3 style="color: #38bdf8;">💲 Engenharia de Custos Industriais, Fichas Técnicas & Formação de Preço</h3>
+              <p>
+                Estruturação contábil e fabril extraída dos modelos analíticos da pasta <strong>Custo</strong> 
+                (<em>calculo de custo 2023 - Produtos fabricados.xlsx</em> e <em>MODELO_CUSTO_COLABORADORES.xlsx</em>).
+                <br>Controle de <strong>Custos Diretos</strong> (Matérias-Primas, Insumos, Embalagens e Perdas de 4% a 10%), 
+                <strong>Mão de Obra e Despesas Indiretas</strong>, <strong>Formação de Markup Industrial</strong>, 
+                <strong>Margem de Contribuição Líquida</strong> e <strong>Matriz de Custos por Colaborador</strong>.
+              </p>
+            </div>
+            <div class="banner-kpis">
+              <div class="banner-stat" style="border-color: rgba(56, 189, 248, 0.4);">
+                <div class="banner-stat-val" style="color: #38bdf8;" id="stat-custo-total-folha">R$ 82.350,00</div>
+                <div class="banner-stat-lbl">Folha Modelo (18 Colabs)</div>
+              </div>
+              <div class="banner-stat" style="border-color: rgba(16, 185, 129, 0.4);">
+                <div class="banner-stat-val" style="color: #34d399;" id="stat-custo-unit-pms">R$ 3,23</div>
+                <div class="banner-stat-lbl">Custo Industrial / Ponta PM</div>
+              </div>
+              <div class="banner-stat" style="border-color: rgba(245, 158, 11, 0.4);">
+                <div class="banner-stat-val" style="color: #fbbf24;" id="stat-custo-markup-medio">52,8%</div>
+                <div class="banner-stat-lbl">Markup Médio Sugerido</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de Navegação Interna / Sub-visões -->
+          <div class="cost-subnav-bar">
+            <div class="cost-subnav-buttons">
+              <button class="btn-cost-subnav active" id="btn-subview-produtos" onclick="switchCostSubView('produtos')">
+                <span>📦</span> Fichas Técnicas & Formação de Preço (Pricing)
+              </button>
+              <button class="btn-cost-subnav" id="btn-subview-colaboradores" onclick="switchCostSubView('colaboradores')">
+                <span>👥</span> Matriz de Custo por Colaborador & Setores
+              </button>
+              <button class="btn-cost-subnav" id="btn-subview-simulador" onclick="switchCostSubView('simulador')">
+                <span>🧮</span> Simulador Interativo de Markup & Margens
+              </button>
+            </div>
+            <div class="cost-subnav-info">
+              <span class="badge-live"><span class="pulse-dot"></span> 12 Fichas Técnicas • 18 Cargos Mapeados</span>
+            </div>
+          </div>
+
+          <!-- SUB-VISÃO 1: FICHAS TÉCNICAS E FORMAÇÃO DE PREÇO -->
+          <div id="cost-subview-produtos" class="cost-subview active">
+            <!-- Tabela Comparativa de Todos os 12 Produtos (Valores Editáveis) -->
+            <div class="card-panel">
+              <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+                <div>
+                  <h3 class="panel-title">📋 Comparativo de Custos Industriais, Markup e Margens de Venda</h3>
+                  <p class="panel-subtitle">Demonstrativo unitário &bull; <strong style="color: #38bdf8;">Valores editáveis em tempo real ✏️</strong> (Custo, Markup e Preço com recálculo automático)</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <button class="btn-action-small" onclick="resetAllCostProducts()" title="Restaurar todos os valores originais da planilha" style="display: inline-flex; align-items: center; gap: 5px; background: rgba(255, 255, 255, 0.06);">
+                    <span>↺</span> <span>Restaurar Padrões</span>
+                  </button>
+                  <button class="btn-action-small" onclick="exportCostProductsCSV()" title="Exportar tabela de custos com as simulações em CSV" style="display: inline-flex; align-items: center; gap: 5px; background: rgba(2, 132, 199, 0.15); border-color: rgba(2, 132, 199, 0.4); color: #38bdf8;">
+                    <span>📥</span> <span>Exportar CSV</span>
+                  </button>
+                  <div class="table-search-box">
+                    <input type="text" id="search-cost-products" placeholder="🔍 Filtrar produto fabricado..." oninput="filterCostProductsTable()">
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="data-table" id="table-cost-products">
+                  <thead>
+                    <tr>
+                      <th style="min-width: 170px;">Produto Fabricado</th>
+                      <th style="min-width: 105px;">Ref. Mensal ✏️</th>
+                      <th style="min-width: 110px;">Custo Fabrico ✏️</th>
+                      <th style="min-width: 110px;">Desp. Indir. & MO ✏️</th>
+                      <th style="min-width: 110px;">Custo Real Total</th>
+                      <th style="min-width: 105px;">Markup (%) ✏️</th>
+                      <th style="min-width: 95px;">Impostos (12%)</th>
+                      <th style="min-width: 125px;">Preço Sugerido ✏️</th>
+                      <th style="min-width: 110px;">Margem (R$)</th>
+                      <th style="min-width: 90px;">Margem (%)</th>
+                      <th style="min-width: 85px;">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-cost-products">
+                    <!-- Preenchido via Javascript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Painel de Explosão de Custos (BOM) do Produto Selecionado -->
+            <div class="card-panel" style="margin-top: 24px;" id="panel-bom-detail">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">🔬 Ficha Técnica Detalhada & Composição de Custos (Bill of Materials)</h3>
+                  <p class="panel-subtitle" id="bom-product-subtitle">Selecione um produto para visualizar a decomposição item a item</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <label for="select-bom-product" style="font-size: 0.82rem; font-weight: 700; color: #38bdf8;">Produto:</label>
+                  <select id="select-bom-product" class="filter-select" onchange="onSelectBOMProductChange()">
+                    <!-- Preenchido via Javascript -->
+                  </select>
+                </div>
+              </div>
+
+              <div class="cost-bom-grid">
+                <!-- Coluna da Esquerda: Gráfico de Composição do Custo e Preço -->
+                <div class="cost-bom-chart-box">
+                  <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main);">
+                    📊 Estrutura Percentual do Preço de Venda
+                  </h4>
+                  <div style="position: relative; height: 260px;">
+                    <canvas id="chart-bom-composition"></canvas>
+                  </div>
+                  <div class="bom-kpis-summary" id="bom-kpis-summary">
+                    <!-- Preenchido via JS -->
+                  </div>
+                </div>
+
+                <!-- Coluna da Direita: Lista de Insumos & Matérias-Primas -->
+                <div class="cost-bom-table-box">
+                  <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main);">
+                    📑 Lista de Materiais, Insumos & Perdas Fabris
+                  </h4>
+                  <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+                    <table class="data-table compact" id="table-bom-items">
+                      <thead>
+                        <tr>
+                          <th>Componente / Insumo</th>
+                          <th>Categoria</th>
+                          <th>Consumo / Unid</th>
+                          <th>Custo Unitário (R$)</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tbody-bom-items">
+                        <!-- Preenchido via JS -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-VISÃO 2: MODELO DE CUSTO POR COLABORADOR -->
+          <div id="cost-subview-colaboradores" class="cost-subview" style="display: none;">
+            <div class="grid-2-col" style="margin-bottom: 24px;">
+              <!-- Gráfico de Custo por Setor Fabril -->
+              <div class="card-panel">
+                <div class="panel-header">
+                  <div>
+                    <h3 class="panel-title">🏭 Distribuição da Folha por Setor Industrial</h3>
+                    <p class="panel-subtitle">Total mensal de salários e encargos agrupados por centro de custo</p>
+                  </div>
+                </div>
+                <div style="position: relative; height: 290px;">
+                  <canvas id="chart-cost-sectors"></canvas>
+                </div>
+              </div>
+
+              <!-- Resumo Estratégico do Modelo RH -->
+              <div class="card-panel">
+                <div class="panel-header">
+                  <div>
+                    <h3 class="panel-title">⚖️ Governança & Parâmetros de Encargos</h3>
+                    <p class="panel-subtitle">Premissas contábeis aplicadas no modelo industrial</p>
+                  </div>
+                </div>
+                <div class="cost-rules-box">
+                  <div class="cost-rule-item">
+                    <span class="cost-rule-icon">💼</span>
+                    <div>
+                      <strong>Encargos & Benefícios Fixados em 50%:</strong>
+                      <p>Para cada R$ 1,00 de salário-base, provisiona-se R$ 0,50 (FGTS, INSS patronal, 13º proporcional, férias + 1/3 e benefícios).</p>
+                    </div>
+                  </div>
+                  <div class="cost-rule-item">
+                    <span class="cost-rule-icon">⏱️</span>
+                    <div>
+                      <strong>Carga Horária Base de 220 Horas/Mês:</strong>
+                      <p>O custo/hora é calculado como Custo Total Mensal ÷ 220 horas para apropriação direta no chão de fábrica.</p>
+                    </div>
+                  </div>
+                  <div class="cost-rule-item">
+                    <span class="cost-rule-icon">🛡️</span>
+                    <div>
+                      <strong>Total de 18 Funções Industriais Mapeadas:</strong>
+                      <p>Folha bruta de R$ 54.900,00 + R$ 27.450,00 encargos = <strong>R$ 82.350,00 mensal</strong>.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabela de Colaboradores do Modelo de Custo -->
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">👥 Relação Nominal de Colaboradores e Custos (Modelo RH)</h3>
+                  <p class="panel-subtitle">Dados diretos da planilha MODELO_CUSTO_COLABORADORES.xlsx</p>
+                </div>
+                <div class="table-search-box">
+                  <input type="text" id="search-cost-colab" placeholder="🔍 Buscar colaborador, cargo ou setor..." oninput="filterCostColabTable()">
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="data-table" id="table-cost-colab">
+                  <thead>
+                    <tr>
+                      <th>Colaborador</th>
+                      <th>Cargo / Função</th>
+                      <th>Setor Fabril</th>
+                      <th>Salário Base (R$)</th>
+                      <th>Encargos (50%)</th>
+                      <th>Custo Mensal (R$)</th>
+                      <th>Custo / Hora (220h)</th>
+                      <th>Admissão</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-cost-colab">
+                    <!-- Preenchido via Javascript -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-VISÃO 3: SIMULADOR INTERATIVO DE MARKUP & PRICING -->
+          <div id="cost-subview-simulador" class="cost-subview" style="display: none;">
+            <div class="card-panel">
+              <div class="panel-header">
+                <div>
+                  <h3 class="panel-title">🧮 Simulador Industrial de Formação de Preço (Pricing & Margem)</h3>
+                  <p class="panel-subtitle">Ajuste o produto e o percentual de markup para simular preços de venda, lucro bruto e margem líquida</p>
+                </div>
+              </div>
+
+              <div class="cost-simulator-layout">
+                <div class="cost-sim-controls">
+                  <div class="sim-group">
+                    <label for="sim-product-select"><strong>1. Selecione o Produto / Instrumental:</strong></label>
+                    <select id="sim-product-select" class="filter-select" onchange="runInteractiveCostSimulation()">
+                      <!-- Preenchido via JS -->
+                    </select>
+                  </div>
+
+                  <div class="sim-group" style="margin-top: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                      <label for="sim-markup-range"><strong>2. Percentual de Markup Desejado:</strong></label>
+                      <span class="sim-markup-badge" id="sim-markup-badge">50%</span>
+                    </div>
+                    <input type="range" id="sim-markup-range" min="10" max="150" value="50" step="5"
+                      class="sim-range-input" oninput="runInteractiveCostSimulation()">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">
+                      <span>10% (Preço Competitivo)</span>
+                      <span>50% (Padrão Industrial)</span>
+                      <span>100% (Alta Margem)</span>
+                      <span>150% (Premium)</span>
+                    </div>
+                  </div>
+
+                  <div class="sim-group" style="margin-top: 18px;">
+                    <label for="sim-aliquota-imposto"><strong>3. Alíquota de Impostos (Simples Nacional / DAS):</strong></label>
+                    <select id="sim-aliquota-imposto" class="filter-select" onchange="runInteractiveCostSimulation()">
+                      <option value="0.12" selected>12,0% (Alíquota Padrão Faixa Simples)</option>
+                      <option value="0.08">8,0% (Faixa Inicial Simples)</option>
+                      <option value="0.10">10,0% (Faixa Intermediária)</option>
+                      <option value="0.14">14,0% (Faixa Sublimite ICMS)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="cost-sim-kpis" id="cost-sim-kpis">
+                  <!-- Preenchido dinamicamente via Javascript -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /#tab-custos -->
+
+        <!-- =========================================================================
+         TAB 8: RELATÓRIO EXECUTIVO INDUSTRIAL (IMPRESSÃO & PDF)
+         ========================================================================= -->
+        <div id="tab-relatorio" class="tab-pane">
+
+          <!-- Barra de Ações e Controles de Impressão (Oculta na Impressão) -->
+          <div class="report-controls-panel">
+            <div class="report-controls-top">
+              <div class="report-controls-left">
+                <div class="report-controls-badge">🖨️ Central Oficial de Impressão & Exportação PDF</div>
+                <h2 class="report-controls-title">Relatório Executivo Industrial & Comercial</h2>
+                <p class="report-controls-desc">
+                  Este relatório compila automaticamente todos os indicadores da empresa selecionada (Consolidado, Empresa 1 ou Empresa 2), 
+                  incluindo KPIs de Vendas, Curva ABC, Diagnóstico do Simples Nacional, Produtividade da Folha (RH) e Resgate de Churn.
+                </p>
+              </div>
+              <div class="report-controls-actions">
+                <button class="btn-print-primary" onclick="window.print()" title="Imprimir ou Salvar em PDF">
+                  <span>🖨️</span> <strong>Imprimir / Salvar em PDF</strong>
+                </button>
+                <button class="btn-print-secondary" onclick="updateAllViews()" title="Recalcular Dados">
+                  <span>🔄</span> Atualizar Dados
+                </button>
+              </div>
+            </div>
+
+            <!-- Barra de Seleção de Ano e Mês Exclusiva do Relatório -->
+            <div class="report-period-selector-bar">
+              <div class="rep-selector-group">
+                <label for="rep-filter-ano"><span class="rep-sel-icon">📅</span> <strong>Ano:</strong></label>
+                <select id="rep-filter-ano" class="rep-select-styled" onchange="onReportPeriodChange()" title="Filtrar Ano do Relatório">
+                  <option value="todos">Todos os Anos (2020 a 2026)</option>
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                  <option value="2021">2021</option>
+                  <option value="2020">2020</option>
+                </select>
+              </div>
+
+              <div class="rep-selector-group">
+                <label for="rep-filter-mes"><span class="rep-sel-icon">🗓️</span> <strong>Mês:</strong></label>
+                <select id="rep-filter-mes" class="rep-select-styled" onchange="onReportPeriodChange()" title="Filtrar Mês do Relatório">
+                  <option value="todos">Todos os Meses (Jan a Dez)</option>
+                  <option value="1">Janeiro (01)</option>
+                  <option value="2">Fevereiro (02)</option>
+                  <option value="3">Março (03)</option>
+                  <option value="4">Abril (04)</option>
+                  <option value="5">Maio (05)</option>
+                  <option value="6">Junho (06)</option>
+                  <option value="7">Julho (07)</option>
+                  <option value="8">Agosto (08)</option>
+                  <option value="9">Setembro (09)</option>
+                  <option value="10">Outubro (10)</option>
+                  <option value="11">Novembro (11)</option>
+                  <option value="12">Dezembro (12)</option>
+                </select>
+              </div>
+
+              <div class="rep-selector-group">
+                <label for="rep-filter-empresa"><span class="rep-sel-icon">🏢</span> <strong>Empresa:</strong></label>
+                <select id="rep-filter-empresa" class="rep-select-styled" onchange="onReportCompanyChange()" title="Filtrar Empresa/Escopo">
+                  <option value="consolidado">Grupo Consolidado (Empresa 1 &amp; Empresa 2)</option>
+                  <option value="mb">⚙️ Empresa 1</option>
+                  <option value="moderna">💎 Empresa 2</option>
+                </select>
+              </div>
+
+              <div class="rep-selector-group">
+                <label for="rep-filter-secao"><span class="rep-sel-icon">📋</span> <strong>Informação:</strong></label>
+                <select id="rep-filter-secao" class="rep-select-styled" onchange="onReportSectionFilterChange()" title="Escolher qual informação deseja visualizar e imprimir">
+                  <option value="todas">📑 Todas as Informações (Relatório Completo)</option>
+                  <option value="visao-geral">⊞ Visão Geral</option>
+                  <option value="producao">🏭 Produção (80/20)</option>
+                  <option value="estados">🗺️ Vendas por Estado</option>
+                  <option value="churn">⚠️ Clientes Inativos</option>
+                  <option value="budget">🎯 Budget &amp; Metas</option>
+                  <option value="gastos">💳 Plano de Gastos &amp; Invest.</option>
+                  <option value="split">⚖️ Equilíbrio Fiscal</option>
+                  <option value="colaboradores">👥 Produtividade &amp; RH</option>
+                </select>
+              </div>
+
+              <div class="rep-selector-presets">
+                <button type="button" class="btn-rep-preset" onclick="setReportPeriodPreset('2026', 'todos')" title="Filtrar Ano 2026 Completo">
+                  Ano 2026
+                </button>
+                <button type="button" class="btn-rep-preset" onclick="setReportPeriodPreset('2026', '10')" title="Filtrar Último Mês (Out/2026)">
+                  Out/2026
+                </button>
+                <button type="button" class="btn-rep-preset btn-rep-clear" onclick="resetReportFilters()" title="Redefinir Filtros para o Histórico Completo">
+                  ✕ Histórico Geral
+                </button>
+              </div>
+
+              <div class="rep-period-status-badge" id="rep-period-status-badge">
+                <span class="badge-dot"></span>
+                <span id="rep-period-status-text">Período: Histórico Geral Consolidado (2020 a 2026)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documento Formal Imprimível (A4) -->
+          <div class="report-sheet" id="report-sheet">
+
+            <!-- Cabeçalho do Relatório -->
+            <header class="rep-header">
+              <div class="rep-brand-box">
+                <div>
+                  <div class="rep-bi-title">SISTEMA DE BUSINESS INTELLIGENCE INDUSTRIAL</div>
+                  <h1 class="rep-main-title">GRUPO CONSOLIDADO — EMPRESA 1 &amp; EMPRESA 2</h1>
+                  <p class="rep-sub-title">Inteligência Operacional, Controladoria de Custos &amp; Gestão Fabril</p>
+                </div>
+              </div>
+              <div class="rep-badge-doc">
+                <span class="rep-doc-type">RELATÓRIO EXECUTIVO OFICIAL</span>
+                <span class="rep-doc-id" id="rep-doc-code">EMISSÃO DIRETORIA #2026-IND</span>
+              </div>
+            </header>
+
+            <!-- Metadados da Emissão -->
+            <div class="rep-meta-grid">
+              <div class="rep-meta-item">
+                <span class="rep-meta-lbl">EMPRESA / ESCOPO:</span>
+                <strong class="rep-meta-val" id="rep-meta-empresa">Grupo Consolidado (Empresa 1 &amp; Empresa 2)</strong>
+              </div>
+              <div class="rep-meta-item">
+                <span class="rep-meta-lbl">PERÍODO DE ANÁLISE:</span>
+                <strong class="rep-meta-val" id="rep-meta-periodo">2020 a 2026 (Consolidado)</strong>
+              </div>
+              <div class="rep-meta-item">
+                <span class="rep-meta-lbl">FILTROS APLICADOS:</span>
+                <strong class="rep-meta-val" id="rep-meta-filtros">Todas as Famílias • Todos os Estados</strong>
+              </div>
+              <div class="rep-meta-item">
+                <span class="rep-meta-lbl">DATA E HORA DE EMISSÃO:</span>
+                <strong class="rep-meta-val" id="rep-meta-data">23/10/2026 15:45</strong>
+              </div>
+            </div>
+
+            <!-- SEÇÃO 1: KPIs FINANCEIROS & OPERACIONAIS -->
+            <section class="rep-section" data-rep-section="visao-geral" data-rep-title="Sumário Executivo de Desempenho Fabril & Vendas (Visão Geral)">
+              <div class="rep-section-title">
+                <span>1. Sumário Executivo de Desempenho Fabril & Vendas (Visão Geral)</span>
+              </div>
+              <div class="rep-kpi-grid">
+                <div class="rep-kpi-card">
+                  <span class="rep-kpi-lbl">Faturamento Total</span>
+                  <div class="rep-kpi-val" id="rep-kpi-faturamento">R$ 0,00</div>
+                  <span class="rep-kpi-sub" id="rep-kpi-faturamento-sub">Receita líquida faturada</span>
+                </div>
+                <div class="rep-kpi-card">
+                  <span class="rep-kpi-lbl">Volume de Peças</span>
+                  <div class="rep-kpi-val" id="rep-kpi-quantidade">0</div>
+                  <span class="rep-kpi-sub">Unidades expedidas</span>
+                </div>
+                <div class="rep-kpi-card">
+                  <span class="rep-kpi-lbl">Total de Pedidos</span>
+                  <div class="rep-kpi-val" id="rep-kpi-pedidos">0</div>
+                  <span class="rep-kpi-sub">Ordens faturadas</span>
+                </div>
+                <div class="rep-kpi-card">
+                  <span class="rep-kpi-lbl">Ticket Médio</span>
+                  <div class="rep-kpi-val" id="rep-kpi-ticket">R$ 0,00</div>
+                  <span class="rep-kpi-sub">Faturamento por pedido</span>
+                </div>
+                <div class="rep-kpi-card">
+                  <span class="rep-kpi-lbl">Preço Médio / Peça</span>
+                  <div class="rep-kpi-val" id="rep-kpi-preco-medio">R$ 0,00</div>
+                  <span class="rep-kpi-sub">Valor médio unitário</span>
+                </div>
+                <div class="rep-kpi-card">
+                  <span class="rep-kpi-lbl">Clientes Ativos</span>
+                  <div class="rep-kpi-val" id="rep-kpi-clientes">0</div>
+                  <span class="rep-kpi-sub">Carteira compradora</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- SEÇÃO 2: CONTROLADORIA TRIBUTÁRIA & EQUILÍBRIO DO SIMPLES NACIONAL -->
+            <section class="rep-section" data-rep-section="split" data-rep-title="Diagnóstico Fiscal & Equilíbrio Empresa 1 vs Empresa 2 (Simples Nacional)">
+              <div class="rep-section-title">
+                <span>2. Diagnóstico Fiscal &amp; Equilíbrio Empresa 1 vs Empresa 2 (Simples Nacional)</span>
+              </div>
+              <div class="rep-split-container">
+                <table class="rep-table">
+                  <thead>
+                    <tr>
+                      <th>Entidade Jurídica</th>
+                      <th id="rep-th-faturamento-split">Faturamento Recente</th>
+                      <th>% Participação</th>
+                      <th>Sublimite ICMS (R$ 3,6M)</th>
+                      <th>Teto Anual Simples (R$ 4,8M)</th>
+                      <th>Diagnóstico Contábil</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rep-tbody-split">
+                    <!-- Javascript -->
+                  </tbody>
+                </table>
+                <div class="rep-fiscal-alert" id="rep-fiscal-alert-box">
+                  <!-- Javascript -->
+                </div>
+              </div>
+            </section>
+
+            <!-- SEÇÃO 3: ENGENHARIA DE PRODUÇÃO & CURVA ABC -->
+            <section class="rep-section" data-rep-section="producao" data-rep-title="Engenharia de Produção & Curva ABC (Produtos Estratégicos)">
+              <div class="rep-section-title">
+                <span>3. Engenharia de Produção & Curva ABC (Produtos Estratégicos)</span>
+              </div>
+              <div class="rep-abc-summary" id="rep-abc-summary-grid">
+                <!-- Javascript: Curva A, B e C -->
+              </div>
+              <div style="margin-top: 10px;">
+                <h4 class="rep-subheading">Top 10 Produtos Classe A (Prioridade Máxima de Fábrica)</h4>
+                <table class="rep-table">
+                  <thead>
+                    <tr>
+                      <th>Produto / Instrumental</th>
+                      <th>Categoria</th>
+                      <th>Volume Peças</th>
+                      <th>Faturamento</th>
+                      <th>Preço Médio</th>
+                      <th>Curva</th>
+                      <th>Recomendação Fabril</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rep-tbody-curva-a">
+                    <!-- Javascript -->
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <!-- SEÇÃO 4: PRODUTIVIDADE FABRIL & RECURSOS HUMANOS -->
+            <section class="rep-section" data-rep-section="colaboradores" data-rep-title="Produtividade Industrial & Custo de Mão de Obra (RH)">
+              <div class="rep-section-title">
+                <span>4. Produtividade Industrial & Custo de Mão de Obra (RH)</span>
+              </div>
+              <div class="rep-rh-grid">
+                <div class="rep-rh-item">
+                  <span class="rep-rh-lbl">Headcount Operacional</span>
+                  <strong class="rep-rh-val" id="rep-rh-headcount">28 colaboradores</strong>
+                </div>
+                <div class="rep-rh-item">
+                  <span class="rep-rh-lbl">Custo Mensal da Folha</span>
+                  <strong class="rep-rh-val" id="rep-rh-custo-folha">R$ 88.739,65</strong>
+                </div>
+                <div class="rep-rh-item">
+                  <span class="rep-rh-lbl">Custo Médio / Operador</span>
+                  <strong class="rep-rh-val" id="rep-rh-custo-medio">R$ 3.413,06</strong>
+                </div>
+                <div class="rep-rh-item">
+                  <span class="rep-rh-lbl">Faturamento per Capita / Mês</span>
+                  <strong class="rep-rh-val" style="color: #0284c7;" id="rep-rh-fat-percapita">R$ 22.046,03</strong>
+                </div>
+                <div class="rep-rh-item">
+                  <span class="rep-rh-lbl">Índice Folha / Faturamento</span>
+                  <strong class="rep-rh-val" id="rep-rh-indice">16,4%</strong>
+                  <span style="font-size: 0.65rem; color: #059669;">✓ Excelente (&lt; 25%)</span>
+                </div>
+                <div class="rep-rh-item">
+                  <span class="rep-rh-lbl">Múltiplo de Retorno (ROI)</span>
+                  <strong class="rep-rh-val" style="color: #7c3aed;" id="rep-rh-roi">6.11x</strong>
+                  <span style="font-size: 0.65rem; color: #64748b;">R$ p/ cada R$ 1 em folha</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 10px;">
+                <h4 class="rep-subheading">Detalhamento de Gastos com Pessoal por Rubrica dos Holerites (Horas Extras, Vales &amp; Adicionais)</h4>
+                <table class="rep-table">
+                  <thead>
+                    <tr>
+                      <th>Categoria / Verba do Holerite</th>
+                      <th>Detalhamento das Rubricas</th>
+                      <th>Total Acumulado (12 Meses)</th>
+                      <th>Média Mensal</th>
+                      <th>% s/ Folha Bruta</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rep-tbody-rh-rubricas">
+                    <!-- Javascript -->
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <!-- SEÇÃO 5: MERCADO REGIONAL & TOP ESTADOS (UF) -->
+            <section class="rep-section" data-rep-section="estados" data-rep-title="Distribuição Comercial por Estados (Vendas por Estado)">
+              <div class="rep-section-title">
+                <span>5. Distribuição Comercial por Estados (Vendas por Estado)</span>
+              </div>
+              <table class="rep-table">
+                <thead>
+                  <tr>
+                    <th>Estado (UF)</th>
+                    <th>Faturamento Total</th>
+                    <th>Participação (%)</th>
+                    <th>Volume Peças</th>
+                    <th>Pedidos Atendidos</th>
+                    <th>Clientes Ativos</th>
+                    <th>Ticket Médio</th>
+                  </tr>
+                </thead>
+                <tbody id="rep-tbody-estados">
+                  <!-- Javascript -->
+                </tbody>
+              </table>
+            </section>
+
+            <!-- SEÇÃO 6: GESTÃO DE RETENÇÃO & CLIENTES INATIVOS (CHURN) -->
+            <section class="rep-section" data-rep-section="churn" data-rep-title="Gestão de Carteira & Resgate Estratégico de Clientes Inativos">
+              <div class="rep-section-title">
+                <span>6. Gestão de Carteira & Resgate Estratégico de Clientes Inativos</span>
+              </div>
+              <div class="rep-churn-summary-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="rep-churn-card">
+                  <span>Clientes Ativos (2026)</span>
+                  <strong id="rep-churn-ativos">664</strong>
+                </div>
+                <div class="rep-churn-card">
+                  <span>Clientes Inativos Totais</span>
+                  <strong id="rep-churn-inativos" style="color: #e11d48;">1.208</strong>
+                </div>
+              </div>
+
+              <div style="margin-top: 10px;">
+                <h4 class="rep-subheading">Principais Clientes VIP em Churn (Ação Comercial Imediata)</h4>
+                <table class="rep-table">
+                  <thead>
+                    <tr>
+                      <th>Cliente</th>
+                      <th>Cidade / UF</th>
+                      <th>Faturamento Histórico</th>
+                      <th>Última Compra</th>
+                      <th>Dias sem Comprar</th>
+                      <th>Prioridade</th>
+                      <th>Ação Recomendada</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rep-tbody-churn">
+                    <!-- Javascript -->
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <!-- SEÇÃO 7: BUDGET & METAS PLANEJADAS -->
+            <section class="rep-section" data-rep-section="budget" data-rep-title="Budget & Metas Planejadas (Acompanhamento 2026 & Planejamento 2027)">
+              <div class="rep-section-title">
+                <span>7. Budget & Metas Planejadas (Acompanhamento 2026 & Planejamento 2027)</span>
+              </div>
+              <div class="rep-backlog-summary" style="margin-bottom: 10px;">
+                <div>
+                  <strong>Meta Anual 2026: </strong>
+                  <span id="rep-budget-meta-2026" style="color: #0284c7; font-weight: 700;">R$ 0,00</span>
+                </div>
+                <div>
+                  <strong>Realizado 2026: </strong>
+                  <span id="rep-budget-real-2026" style="color: #059669; font-weight: 700;">R$ 0,00</span>
+                </div>
+                <div>
+                  <strong>GAP Restante 2026: </strong>
+                  <span id="rep-budget-gap-2026" style="color: #d97706; font-weight: 700;">R$ 0,00</span>
+                </div>
+                <div>
+                  <strong>Meta Planejada 2027: </strong>
+                  <span id="rep-budget-meta-2027" style="color: #7c3aed; font-weight: 700;">R$ 0,00</span>
+                </div>
+              </div>
+              <table class="rep-table">
+                <thead>
+                  <tr>
+                    <th>Mês</th>
+                    <th>Meta 2026 (R$)</th>
+                    <th>Realizado 2026 (R$)</th>
+                    <th>% Ating. 2026</th>
+                    <th>Diferença 2026 (R$)</th>
+                    <th>Meta Planejada 2027 (R$)</th>
+                  </tr>
+                </thead>
+                <tbody id="rep-tbody-budget">
+                  <!-- Javascript -->
+                </tbody>
+              </table>
+            </section>
+
+            <!-- SEÇÃO 8: PLANO DE GASTOS E INVESTIMENTOS -->
+            <section class="rep-section" data-rep-section="gastos" data-rep-title="Plano de Gastos e Investimentos (Validação Feito / Não Feito)">
+              <div class="rep-section-title">
+                <span>8. Plano de Gastos e Investimentos (Validação Feito / Não Feito)</span>
+              </div>
+              <div class="rep-backlog-summary" style="margin-bottom: 10px;">
+                <div>
+                  <strong>Total Planejado (<span id="rep-gastos-ano-lbl">2027</span>): </strong>
+                  <span id="rep-gastos-total" style="color: #0284c7; font-weight: 700;">R$ 0,00</span>
+                </div>
+                <div>
+                  <strong>Já Feito / Validado: </strong>
+                  <span id="rep-gastos-feito" style="color: #059669; font-weight: 700;">R$ 0,00 (0 itens)</span>
+                </div>
+                <div>
+                  <strong>Não Feito / Pendente: </strong>
+                  <span id="rep-gastos-pendente" style="color: #d97706; font-weight: 700;">R$ 0,00 (0 itens)</span>
+                </div>
+              </div>
+              <table class="rep-table">
+                <thead>
+                  <tr>
+                    <th>Mês / Ano Previsto</th>
+                    <th>Com o que pretende gastar / investir</th>
+                    <th>Valor Previsto (R$)</th>
+                    <th>Status de Validação</th>
+                  </tr>
+                </thead>
+                <tbody id="rep-tbody-gastos">
+                  <!-- Javascript -->
+                </tbody>
+              </table>
+            </section>
+
+          </div><!-- /.report-sheet -->
+
+        </div><!-- /#tab-relatorio -->
+
+      </main>
+
+      <!-- RODAPÉ -->
+      <footer class="app-footer">
+        Empresa 1 &bull; Empresa 2 &bull; Sistema de Inteligência Industrial &amp; Gestão Estratégica &bull;
+        Relatórios Conta Azul (2020 - 2026)
+      </footer>
+
+    </div><!-- /.app-main-content -->
+  </div><!-- /.app-shell -->
+
+  <!-- Dados da Aplicação com fallback duplo e cache-busting -->
+  <script src="Arquivos.js/data.js?v=20261112_emp12"></script>
+  <script>
+    if (typeof window.DASHBOARD_DATA === 'undefined') {
+      document.write('<script src="data.js?v=20261112_emp12"><\/script>');
+    }
+  </script>
+  <!-- Lógica da Aplicação com fallback duplo e cache-busting -->
+  <script src="Arquivos.js/app.js?v=20261112_emp12"></script>
+  <script>
+    if (typeof initDashboard === 'undefined') {
+      document.write('<script src="app.js?v=20261112_emp12"><\/script>');
+    }
+  </script>
+</body>
+
+</html>

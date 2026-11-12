@@ -1,0 +1,24 @@
+# Arquivos temporários do Excel
+~$*.xlsx
+~$*.xls
+
+# Python cache & scratch
+__pycache__/
+*.pyc
+*.pyo
+scratch/
+Nova pasta/
+
+# Planilhas e PDFs brutos locais (dados já compilados em data.js e data_dashboard.json)
+Folha de pagamento anual/
+Relatório de vendas/
+Relatório de carteira de pedidos/
+Pedidos pendentes/
+Custo/
+*.pdf
+*.xlsx
+assets/
+
+# IDEs
+.vscode/
+.idea/
