@@ -22,3 +22,5 @@ assets/
 # IDEs
 .vscode/
 .idea/
+
+Arquivos.js/*.png
