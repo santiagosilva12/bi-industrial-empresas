@@ -302,6 +302,7 @@ df_all = df_all.dropna(subset=['Data da venda'])
 df_all['Ano'] = df_all['Data da venda'].dt.year
 df_all['Mes'] = df_all['Data da venda'].dt.month
 df_all['AnoMes'] = df_all['Data da venda'].dt.strftime('%Y-%m')
+df_all['Data_Dia'] = df_all['Data da venda'].dt.floor('D')
 df_all['Valor Total'] = pd.to_numeric(df_all['Valor Total'], errors='coerce').fillna(0)
 df_all['Quantidade de itens'] = pd.to_numeric(df_all['Quantidade de itens'], errors='coerce').fillna(0)
 df_all['Valor unitário'] = pd.to_numeric(df_all['Valor unitário'], errors='coerce').fillna(0)
@@ -313,19 +314,114 @@ df_all['UF'] = [u[0] for u in ufs_regioes]
 df_all['Regiao'] = [u[1] for u in ufs_regioes]
 df_all['Categoria'] = df_all['Nome do produto/serviço'].apply(categorize_product)
 
-df_all['Cliente_Clean'] = df_all['Cliente'].apply(clean_client_name)
+# -------------------------------------------------------------------------------------------------
+# CORREÇÃO DE DUPLICIDADE (CONTA AZUL) & MAPEAMENTO COMPLETO DE TERCEIRIZAÇÃO
+# 1. Identificar primeiro todos os clientes de Terceirização (incluindo nomes parecidos e variações de CNPJ)
+# 2. Preservar 100% do valor real de nota fiscal dos clientes de Terceirização (sem reduzir pelo fator de duplicidade)
+# 3. Calibrar o restante das vendas gerais para que o fechamento mensal bata exatamente com a pasta "Faturamento"
+# -------------------------------------------------------------------------------------------------
+TERCEIRIZACAO_KEYWORDS = [
+    ('Nova OGP', ['NOVA OGP', 'OGP INDUSTRIA']),
+    ('Volmed', ['VOLMED']),
+    ('Callamed / Unimed (Usimed)', ['CALLAMED', 'CALAMED', 'CALLE MED', 'CALLEMED', 'UNIMED', 'USIMED']),
+    ('Sancamed', ['SANCAMED', 'SANCA MED']),
+    ('Tornado / Tóride', ['TORNADO', 'TORIDE']),
+    ('Essence Dental / Pro Essence', ['ESSENCE DENTAL', 'PRO ESSENCE', 'PROESSENCE', 'IPESE']),
+    ('Setormed', ['SETORMED', 'SETOR MED']),
+    ('Hortron', ['HORTRON']),
+    ('Comercial Gallanti', ['GALLANTI', 'GALANTI']),
+    ('Nutec / Usinagem', ['NUTEC', 'PROD MOLD', 'TOLEDO & ARAUJO USINAGEM', 'TOLEDO E ARAUJO USINAGEM']),
+    ('Outros Terceirizados (Lote/OEM)', ['EXXYS'])
+]
 
-# Mapear o nome oficial mais representativo (o de maior faturamento dentro do grupo)
+def identificar_grupo_terceirizacao(nome_cliente):
+    cn = norm(str(nome_cliente)).upper()
+    for label, kw_list in TERCEIRIZACAO_KEYWORDS:
+        if any(k in cn for k in kw_list):
+            return label
+    return None
+
+def is_cliente_terceirizacao(nome_cliente):
+    return identificar_grupo_terceirizacao(nome_cliente) is not None
+
+df_all['Cliente_Original'] = df_all['Cliente'].fillna('SEM IDENTIFICACAO').astype(str).str.strip()
+df_all['Grupo_Terceirizacao'] = df_all['Cliente_Original'].apply(identificar_grupo_terceirizacao)
+df_all['Terceirizacao'] = df_all['Grupo_Terceirizacao'].notnull()
+df_all['Valor_Bruto_Planilha'] = df_all['Valor Total'].copy()
+
+faturamento_oficial_dir = os.path.join(ROOT_DIR, 'Faturamento')
+ajuste_faturamento_oficial = []
+if os.path.isdir(faturamento_oficial_dir):
+    oficial_map = {}
+    for fname in sorted(os.listdir(faturamento_oficial_dir)):
+        if not fname.lower().endswith(('.xlsx', '.xls')) or fname.startswith('~$'):
+            continue
+        try:
+            df_of = pd.read_excel(os.path.join(faturamento_oficial_dir, fname))
+            df_of = df_of.iloc[:, :2].copy()
+            df_of.columns = ['mes', 'fat']
+            df_of['mes'] = pd.to_datetime(df_of['mes'], errors='coerce')
+            df_of['fat'] = pd.to_numeric(df_of['fat'], errors='coerce')
+            df_of = df_of.dropna()
+            for _, r in df_of.iterrows():
+                oficial_map[r['mes'].strftime('%Y-%m')] = float(r['fat'])
+        except Exception as e:
+            print(f"! Erro ao ler faturamento oficial {fname}: {e}")
+
+    if oficial_map:
+        print(f"\n✓ Faturamento Oficial carregado: {len(oficial_map)} meses ({min(oficial_map)} a {max(oficial_map)})")
+        for am, fat_of in sorted(oficial_map.items()):
+            mask_mes = df_all['AnoMes'] == am
+            fat_atual = float(df_all.loc[mask_mes, 'Valor Total'].sum())
+            if fat_atual <= 0:
+                continue
+            # Preservar valor integral dos clientes de terceirização no mês e ajustar apenas as vendas gerais
+            mask_terc_mes = mask_mes & df_all['Terceirizacao']
+            mask_geral_mes = mask_mes & (~df_all['Terceirizacao'])
+            fat_terc_mes = float(df_all.loc[mask_terc_mes, 'Valor Total'].sum())
+            fat_geral_mes = float(df_all.loc[mask_geral_mes, 'Valor Total'].sum())
+
+            if fat_geral_mes > 0 and fat_of > fat_terc_mes:
+                fator_geral = (fat_of - fat_terc_mes) / fat_geral_mes
+                df_all.loc[mask_geral_mes, 'Valor Total'] = df_all.loc[mask_geral_mes, 'Valor Total'] * fator_geral
+                df_all.loc[mask_geral_mes, 'Quantidade de itens'] = df_all.loc[mask_geral_mes, 'Quantidade de itens'] * fator_geral
+                fator_efetivo = fat_of / fat_atual
+            else:
+                fator_efetivo = fat_of / fat_atual
+                df_all.loc[mask_mes, 'Valor Total'] = df_all.loc[mask_mes, 'Valor Total'] * fator_efetivo
+                df_all.loc[mask_mes, 'Quantidade de itens'] = df_all.loc[mask_mes, 'Quantidade de itens'] * fator_efetivo
+
+            ajuste_faturamento_oficial.append({
+                'ano_mes': am,
+                'faturamento_anterior': round(fat_atual, 2),
+                'faturamento_oficial': round(fat_of, 2),
+                'fator': round(fator_efetivo, 4)
+            })
+        tot_ant = sum(a['faturamento_anterior'] for a in ajuste_faturamento_oficial)
+        tot_of = sum(a['faturamento_oficial'] for a in ajuste_faturamento_oficial)
+        print(f"  ✓ Ajuste aplicado: R$ {tot_ant:,.2f} (duplicado) -> R$ {tot_of:,.2f} (oficial) | diferença R$ {tot_ant - tot_of:,.2f}")
+
+df_all['Cliente_Clean'] = df_all['Cliente_Original'].apply(clean_client_name)
+
+# Mapear o nome oficial mais representativo (para clientes gerais; para terceirização manter o Cliente_Original para validação transparente!)
 cli_canonical_map = {}
-grouped_canonical = df_all.groupby(['Cliente_Clean', 'Cliente'])['Valor Total'].sum().reset_index().sort_values('Valor Total', ascending=False)
+grouped_canonical = df_all.groupby(['Cliente_Clean', 'Cliente_Original'])['Valor Total'].sum().reset_index().sort_values('Valor Total', ascending=False)
 for _, r in grouped_canonical.iterrows():
     ck = r['Cliente_Clean']
     if ck not in cli_canonical_map:
-        cli_canonical_map[ck] = r['Cliente']
+        cli_canonical_map[ck] = r['Cliente_Original']
 
-df_all['Cliente_Original'] = df_all['Cliente']
-df_all['Cliente'] = df_all['Cliente_Clean'].map(cli_canonical_map)
-print(f"✓ Unificação de Clientes por Nome: {df_all['Cliente_Original'].nunique()} cadastros agrupados em {df_all['Cliente'].nunique()} clientes corporativos únicos.")
+df_all['Cliente'] = df_all.apply(
+    lambda r: r['Cliente_Original'] if r['Terceirizacao'] else cli_canonical_map.get(r['Cliente_Clean'], r['Cliente_Original']),
+    axis=1
+)
+
+df_terc_only = df_all[df_all['Terceirizacao']]
+df_sem_terc = df_all[~df_all['Terceirizacao']]
+print(f"\n✓ Filtro de Terceirização Ampliado ({df_terc_only['Cliente_Original'].nunique()} razões sociais / {len(TERCEIRIZACAO_KEYWORDS)} grupos):")
+print(f"  • Faturamento Total Geral:         R$ {df_all['Valor Total'].sum():,.2f}")
+print(f"  • Sem Terceirização (Alta Margem): R$ {df_sem_terc['Valor Total'].sum():,.2f} ({df_sem_terc['Valor Total'].sum() / df_all['Valor Total'].sum() * 100:.1f}%)")
+print(f"  • Apenas Terceirização (Integral): R$ {df_terc_only['Valor Total'].sum():,.2f} ({df_terc_only['Valor Total'].sum() / df_all['Valor Total'].sum() * 100:.1f}%)")
 
 # Função para computar métricas completas para um subconjunto de dados (Consolidado, MB ou Moderna)
 def computar_metricas_empresa(df_sub):
@@ -337,6 +433,144 @@ def computar_metricas_empresa(df_sub):
     preco_m = total_fat / total_qtd if total_qtd > 0 else 0
     anos = sorted([int(a) for a in df_sub['Ano'].unique()])
     
+    def calcular_recorrencia_df(df_target, top_n=40):
+        if len(df_target) == 0:
+            return {
+                'total_clientes': 0,
+                'clientes_recorrentes': 0,
+                'clientes_compra_unica': 0,
+                'taxa_recorrencia_pct': 0.0,
+                'media_dias_recompra': 0.0,
+                'mediana_dias_recompra': 0.0,
+                'media_intervalo_eventos_dias': 0.0,
+                'media_pedidos_recorrente': 0.0,
+                'faturamento_recorrente': 0.0,
+                'pct_faturamento_recorrente': 0.0,
+                'faixas_ciclo': {
+                    'ate_30_dias': 0,
+                    'de_31_a_60_dias': 0,
+                    'de_61_a_90_dias': 0,
+                    'de_91_a_180_dias': 0,
+                    'acima_180_dias': 0
+                },
+                'ranking_recorrentes': []
+            }
+        tot_fat = float(df_target['Valor Total'].sum())
+        max_dt = df_target['Data_Dia'].max()
+        c_df = df_target.groupby('Cliente').agg(
+            faturamento=('Valor Total', 'sum'),
+            quantidade=('Quantidade de itens', 'sum'),
+            pedidos=('Número da venda', 'nunique'),
+            dias_compra=('Data_Dia', 'nunique'),
+            primeira_compra=('Data_Dia', 'min'),
+            ultima_compra=('Data_Dia', 'max'),
+            cidade=('Cidade do cliente', 'last'),
+            uf=('UF', 'last')
+        ).reset_index()
+
+        tot_cli = len(c_df)
+        rec_df = c_df[c_df['pedidos'] >= 2].copy()
+        unicos_cnt = int((c_df['pedidos'] < 2).sum())
+        rec_cnt = len(rec_df)
+        taxa_rec = round(float(rec_cnt / tot_cli * 100) if tot_cli > 0 else 0.0, 1)
+
+        if rec_cnt == 0:
+            return {
+                'total_clientes': tot_cli,
+                'clientes_recorrentes': 0,
+                'clientes_compra_unica': unicos_cnt,
+                'taxa_recorrencia_pct': 0.0,
+                'media_dias_recompra': 0.0,
+                'mediana_dias_recompra': 0.0,
+                'media_intervalo_eventos_dias': 0.0,
+                'media_pedidos_recorrente': 0.0,
+                'faturamento_recorrente': 0.0,
+                'pct_faturamento_recorrente': 0.0,
+                'faixas_ciclo': {
+                    'ate_30_dias': 0,
+                    'de_31_a_60_dias': 0,
+                    'de_61_a_90_dias': 0,
+                    'de_91_a_180_dias': 0,
+                    'acima_180_dias': 0
+                },
+                'ranking_recorrentes': []
+            }
+
+        rec_df['span_dias'] = (rec_df['ultima_compra'] - rec_df['primeira_compra']).dt.days
+        rec_df['intervalos'] = (rec_df['dias_compra'] - 1).clip(lower=1)
+        rec_df['ciclo_dias'] = (rec_df['span_dias'] / rec_df['intervalos']).round(1)
+        # Se comprou 2+ pedidos no mesmo dia, considerar ciclo de 1 dia
+        rec_df.loc[rec_df['ciclo_dias'] <= 0, 'ciclo_dias'] = 1.0
+
+        valid_span = rec_df[rec_df['span_dias'] > 0]
+        if len(valid_span) > 0:
+            media_dias = round(float(valid_span['ciclo_dias'].mean()), 1)
+            mediana_dias = round(float(valid_span['ciclo_dias'].median()), 1)
+            tot_int = float(valid_span['intervalos'].sum())
+            media_eventos = round(float(valid_span['span_dias'].sum() / tot_int) if tot_int > 0 else media_dias, 1)
+        else:
+            media_dias = round(float(rec_df['ciclo_dias'].mean()), 1)
+            mediana_dias = round(float(rec_df['ciclo_dias'].median()), 1)
+            media_eventos = media_dias
+
+        media_peds = round(float(rec_df['pedidos'].mean()), 1)
+        fat_rec = round(float(rec_df['faturamento'].sum()), 2)
+        pct_fat_rec = round(float(fat_rec / tot_fat * 100) if tot_fat > 0 else 0.0, 1)
+
+        faixas = {
+            'ate_30_dias': int((rec_df['ciclo_dias'] <= 30).sum()),
+            'de_31_a_60_dias': int(((rec_df['ciclo_dias'] > 30) & (rec_df['ciclo_dias'] <= 60)).sum()),
+            'de_61_a_90_dias': int(((rec_df['ciclo_dias'] > 60) & (rec_df['ciclo_dias'] <= 90)).sum()),
+            'de_91_a_180_dias': int(((rec_df['ciclo_dias'] > 90) & (rec_df['ciclo_dias'] <= 180)).sum()),
+            'acima_180_dias': int((rec_df['ciclo_dias'] > 180).sum())
+        }
+
+        rec_sorted = rec_df.sort_values(['faturamento', 'pedidos'], ascending=[False, False]).head(top_n)
+        ranking = []
+        for _, r in rec_sorted.iterrows():
+            cd = float(r['ciclo_dias'])
+            if cd <= 30:
+                st_ciclo = 'Mensal (Alta Frequência)'
+            elif cd <= 60:
+                st_ciclo = 'Bimestral'
+            elif cd <= 90:
+                st_ciclo = 'Trimestral'
+            elif cd <= 180:
+                st_ciclo = 'Semestral'
+            else:
+                st_ciclo = 'Esporádico (>180d)'
+            dias_ult = int((max_dt - r['ultima_compra']).days) if pd.notnull(r['ultima_compra']) and pd.notnull(max_dt) else 0
+            ranking.append({
+                'cliente': str(r['Cliente']),
+                'cidade': str(r['cidade']),
+                'uf': str(r['uf']),
+                'pedidos': int(r['pedidos']),
+                'dias_compra': int(r['dias_compra']),
+                'faturamento': round(float(r['faturamento']), 2),
+                'quantidade': int(r['quantidade']),
+                'ticket_medio': round(float(r['faturamento'] / r['pedidos']) if r['pedidos'] > 0 else 0.0, 2),
+                'primeira_compra': r['primeira_compra'].strftime('%d/%m/%Y') if pd.notnull(r['primeira_compra']) else '',
+                'ultima_compra': r['ultima_compra'].strftime('%d/%m/%Y') if pd.notnull(r['ultima_compra']) else '',
+                'ciclo_medio_dias': cd,
+                'dias_desde_ultima': dias_ult,
+                'status_ciclo': st_ciclo
+            })
+
+        return {
+            'total_clientes': tot_cli,
+            'clientes_recorrentes': rec_cnt,
+            'clientes_compra_unica': unicos_cnt,
+            'taxa_recorrencia_pct': taxa_rec,
+            'media_dias_recompra': media_dias,
+            'mediana_dias_recompra': mediana_dias,
+            'media_intervalo_eventos_dias': media_eventos,
+            'media_pedidos_recorrente': media_peds,
+            'faturamento_recorrente': fat_rec,
+            'pct_faturamento_recorrente': pct_fat_rec,
+            'faixas_ciclo': faixas,
+            'ranking_recorrentes': ranking
+        }
+
     def extrair_resumo_df(df_target):
         if len(df_target) == 0:
             return {
@@ -350,7 +584,8 @@ def computar_metricas_empresa(df_sub):
                 'vendas_por_uf': [],
                 'top_cidades': [],
                 'produtos': [],
-                'top_clientes': []
+                'top_clientes': [],
+                'recorrencia_compra': calcular_recorrencia_df(df_target, top_n=30)
             }
         fat = float(df_target['Valor Total'].sum())
         qtd = int(df_target['Quantidade de itens'].sum())
@@ -393,7 +628,7 @@ def computar_metricas_empresa(df_sub):
             faturamento=('Valor Total', 'sum'),
             quantidade=('Quantidade de itens', 'sum'),
             clientes=('Cliente', 'nunique')
-        ).reset_index().sort_values('faturamento', ascending=False).head(20)
+        ).reset_index().sort_values('faturamento', ascending=False).head(50)
         cidades = [{
             'cidade': str(r['Cidade do cliente']),
             'uf': str(r['UF']),
@@ -448,7 +683,8 @@ def computar_metricas_empresa(df_sub):
             'vendas_por_uf': ufs,
             'top_cidades': cidades,
             'produtos': prods,
-            'top_clientes': top_cli
+            'top_clientes': top_cli,
+            'recorrencia_compra': calcular_recorrencia_df(df_target, top_n=35)
         }
     
     # Anual e sub-meses
@@ -787,13 +1023,100 @@ def computar_metricas_empresa(df_sub):
         'top_cidades': top_cidades,
         'categorias': categorias,
         'top_clientes': top_clientes,
+        'recorrencia_compra': calcular_recorrencia_df(df_sub, top_n=60),
         'analise_churn': resumo_churn
     }
 
-print("\nProcessando métricas consolidadas e por empresa...")
+
+print("\nProcessando métricas consolidadas e por empresa (Todos, Sem Terceirização e Apenas Terceirização)...")
 metricas_consolidado = computar_metricas_empresa(df_all)
 metricas_mb = computar_metricas_empresa(df_all[df_all['Empresa'] == 'Metalúrgica Brilho'])
 metricas_moderna = computar_metricas_empresa(df_all[df_all['Empresa'] == 'Moderna'])
+
+df_sem_terc = df_all[~df_all['Terceirizacao']]
+metricas_sem_terc_consolidado = computar_metricas_empresa(df_sem_terc)
+metricas_sem_terc_mb = computar_metricas_empresa(df_sem_terc[df_sem_terc['Empresa'] == 'Metalúrgica Brilho'])
+metricas_sem_terc_moderna = computar_metricas_empresa(df_sem_terc[df_sem_terc['Empresa'] == 'Moderna'])
+
+df_apenas_terc = df_all[df_all['Terceirizacao']]
+metricas_apenas_terc_consolidado = computar_metricas_empresa(df_apenas_terc)
+metricas_apenas_terc_mb = computar_metricas_empresa(df_apenas_terc[df_apenas_terc['Empresa'] == 'Metalúrgica Brilho'])
+metricas_apenas_terc_moderna = computar_metricas_empresa(df_apenas_terc[df_apenas_terc['Empresa'] == 'Moderna'])
+
+# Resumo Analítico Individual por Razão Social Original dos Clientes de Terceirização
+terc_cli_agg = df_apenas_terc.groupby(['Cliente_Original', 'Grupo_Terceirizacao']).agg(
+    faturamento=('Valor Total', 'sum'),
+    quantidade=('Quantidade de itens', 'sum'),
+    pedidos=('Número da venda', 'nunique'),
+    cidade=('Cidade do cliente', 'last'),
+    uf=('UF', 'last'),
+    primeira_compra=('Data da venda', 'min'),
+    ultima_compra=('Data da venda', 'max')
+).reset_index().sort_values('faturamento', ascending=False)
+
+fat_2026_terc_map = df_apenas_terc[df_apenas_terc['Ano'] == 2026].groupby('Cliente_Original')['Valor Total'].sum().to_dict()
+fat_2025_terc_map = df_apenas_terc[df_apenas_terc['Ano'] == 2025].groupby('Cliente_Original')['Valor Total'].sum().to_dict()
+tot_fat_geral = float(df_all['Valor Total'].sum()) or 1.0
+tot_fat_terc = float(df_apenas_terc['Valor Total'].sum()) or 1.0
+
+by_cli_anomes = {}
+by_cli_ano = {}
+by_cli_mes = {}
+for (cli, am), grp in df_apenas_terc.groupby(['Cliente_Original', 'AnoMes']):
+    by_cli_anomes.setdefault(str(cli), {})[str(am)] = {
+        'fat': round(float(grp['Valor Total'].sum()), 2),
+        'qtd': int(grp['Quantidade de itens'].sum()),
+        'peds': int(grp['Número da venda'].nunique())
+    }
+for (cli, ano), grp in df_apenas_terc.groupby(['Cliente_Original', 'Ano']):
+    by_cli_ano.setdefault(str(cli), {})[str(ano)] = {
+        'fat': round(float(grp['Valor Total'].sum()), 2),
+        'qtd': int(grp['Quantidade de itens'].sum()),
+        'peds': int(grp['Número da venda'].nunique())
+    }
+for (cli, mes), grp in df_apenas_terc.groupby(['Cliente_Original', 'Mes']):
+    by_cli_mes.setdefault(str(cli), {})[str(mes)] = {
+        'fat': round(float(grp['Valor Total'].sum()), 2),
+        'qtd': int(grp['Quantidade de itens'].sum()),
+        'peds': int(grp['Número da venda'].nunique())
+    }
+
+lista_clientes_terceirizacao = []
+for _, r in terc_cli_agg.iterrows():
+    c_name = str(r['Cliente_Original'])
+    f_val = float(r['faturamento'])
+    p_cnt = int(r['pedidos'])
+    lista_clientes_terceirizacao.append({
+        'cliente': c_name,
+        'grupo': str(r['Grupo_Terceirizacao']),
+        'cidade': str(r['cidade']),
+        'uf': str(r['uf']),
+        'faturamento_historico': round(f_val, 2),
+        'faturamento_2025': round(float(fat_2025_terc_map.get(c_name, 0.0)), 2),
+        'faturamento_2026': round(float(fat_2026_terc_map.get(c_name, 0.0)), 2),
+        'quantidade': int(r['quantidade']),
+        'pedidos': p_cnt,
+        'ticket_medio': round(f_val / p_cnt if p_cnt > 0 else 0.0, 2),
+        'pct_do_terceirizado': round(f_val / tot_fat_terc * 100, 1),
+        'pct_do_total_geral': round(f_val / tot_fat_geral * 100, 2),
+        'primeira_compra': r['primeira_compra'].strftime('%d/%m/%Y') if pd.notnull(r['primeira_compra']) else '',
+        'ultima_compra': r['ultima_compra'].strftime('%d/%m/%Y') if pd.notnull(r['ultima_compra']) else '',
+        'por_anomes': by_cli_anomes.get(c_name, {}),
+        'por_ano': by_cli_ano.get(c_name, {}),
+        'por_mes': by_cli_mes.get(c_name, {})
+    })
+
+resumo_terceirizacao_info = {
+    'faturamento_total_geral': round(float(df_all['Valor Total'].sum()), 2),
+    'faturamento_sem_terceirizacao': round(float(df_sem_terc['Valor Total'].sum()), 2),
+    'faturamento_apenas_terceirizacao': round(float(df_apenas_terc['Valor Total'].sum()), 2),
+    'pct_terceirizacao_geral': round(float(df_apenas_terc['Valor Total'].sum()) / tot_fat_geral * 100, 2),
+    'faturamento_2026_geral': round(float(df_all[df_all['Ano'] == 2026]['Valor Total'].sum()), 2),
+    'faturamento_2026_sem_terceirizacao': round(float(df_sem_terc[df_sem_terc['Ano'] == 2026]['Valor Total'].sum()), 2),
+    'faturamento_2026_apenas_terceirizacao': round(float(df_apenas_terc[df_apenas_terc['Ano'] == 2026]['Valor Total'].sum()), 2),
+    'total_clientes_terceirizacao': len(lista_clientes_terceirizacao),
+    'clientes': lista_clientes_terceirizacao
+}
 
 # Análise de Split e Equilíbrio Fiscal
 anos_todos = sorted([int(a) for a in df_all['Ano'].unique()])
@@ -2002,17 +2325,52 @@ dataset_final = {
     'data_atualizacao': pd.Timestamp.now().strftime('%d/%m/%Y %H:%M:%S'),
     'arquivos_processados': [os.path.basename(f) for f in sales_files],
     'fato_budget': fato_budget,
+    'ajuste_faturamento_oficial': ajuste_faturamento_oficial,
     'split_fiscal': split_fiscal_consolidado,
     'produtividade_rh': metricas_rh,
     'evolucao_mensal_folha': evolucao_mensal_folha_consolidado,
     'backlog_fabril': backlog_info,
     'custos_industriais': dados_custo_consolidado,
+    'resumo_terceirizacao': resumo_terceirizacao_info,
     'empresas': {
         'consolidado': metricas_consolidado,
         'mb': metricas_mb,
         'moderna': metricas_moderna
+    },
+    'empresas_sem_terceirizacao': {
+        'consolidado': metricas_sem_terc_consolidado,
+        'mb': metricas_sem_terc_mb,
+        'moderna': metricas_sem_terc_moderna
+    },
+    'empresas_apenas_terceirizacao': {
+        'consolidado': metricas_apenas_terc_consolidado,
+        'mb': metricas_apenas_terc_mb,
+        'moderna': metricas_apenas_terc_moderna
     }
 }
+
+
+def _anonimizar_empresas(obj):
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k == 'empresa' and isinstance(v, str):
+                if v == 'Metalúrgica Brilho':
+                    obj[k] = 'Empresa 1'
+                elif v == 'Moderna':
+                    obj[k] = 'Empresa 2'
+            elif k in ('diagnostico', 'fonte', 'fonte_arquivo') and isinstance(v, str):
+                v = v.replace('Metalúrgica Brilho (MB)', 'Empresa 1')
+                v = v.replace('Metalúrgica Brilho', 'Empresa 1')
+                v = v.replace('Moderna', 'Empresa 2')
+                v = re.sub(r'\bMB\b', 'Empresa 1', v)
+                obj[k] = v
+            else:
+                _anonimizar_empresas(v)
+    elif isinstance(obj, list):
+        for item in obj:
+            _anonimizar_empresas(item)
+
+_anonimizar_empresas(dataset_final)
 
 # Salvar Planilha de Clientes Inativos / Churn
 df_churn_export = pd.DataFrame(metricas_consolidado['analise_churn']['lista_inativos'])

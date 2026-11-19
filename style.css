@@ -3550,3 +3550,133 @@ body {
 
 
 
+
+
+/* =========================================================================
+   OTIMIZAÇÃO PWA & EXPERIÊNCIA MOBILE (CELULAR ANDROID / IPHONE)
+   ========================================================================= */
+.mobile-bottom-nav {
+  display: none;
+}
+
+.mobile-sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  body {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-sidebar-backdrop.show {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(2px);
+    z-index: 998;
+  }
+
+  .app-sidebar {
+    z-index: 1000 !important;
+  }
+
+  .mobile-bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(58px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.22);
+    z-index: 995;
+  }
+
+  .mob-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: inherit;
+    cursor: pointer;
+    padding: 4px 2px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .mob-nav-item.active {
+    color: #0284c7;
+    font-weight: 800;
+    background: rgba(2, 132, 199, 0.08);
+  }
+
+  .mob-nav-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  .mob-nav-lbl {
+    font-size: 0.64rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* Ajustes de Topbar e Filtros para toque no celular */
+  .app-topbar {
+    padding: 8px 12px !important;
+    gap: 8px !important;
+  }
+
+  .topbar-filters {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    padding-bottom: 4px;
+    gap: 6px !important;
+  }
+
+  .topbar-filters .filter-select.compact {
+    flex-shrink: 0;
+    font-size: 0.76rem;
+    padding: 5px 8px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .kpi-card {
+    padding: 12px !important;
+  }
+
+  .kpi-value {
+    font-size: 1.22rem !important;
+  }
+
+  .charts-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .table-responsive {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .hide-on-xs {
+    display: none;
+  }
+}

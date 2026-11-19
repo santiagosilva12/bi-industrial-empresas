@@ -3,8 +3,15 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Business Intelligence Industrial | Empresa 1 &amp; Empresa 2</title>
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BI Industrial">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/pwa-icon-192.png">
   <meta name="description"
     content="Sistema Executivo de Business Intelligence Industrial, Produção, Vendas por Estado, Curva ABC, Split Fiscal e Custos Industriais.">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -20,7 +27,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="style.css?v=20261029_rh_mes_filter">
+  <link rel="stylesheet" href="style.css?v=20261119_pwa">
   <!-- Chart.js local (offline com suporte a Arquivos.js e raiz) -->
   <script src="Arquivos.js/chart.min.js"></script>
   <script>
@@ -158,13 +165,21 @@
             <span class="nav-text">Produtividade & RH</span>
             <span class="nav-badge success">28</span>
           </button>
-          <button class="nav-tab" id="nav-tab-organograma" onclick="openOrganogramaSection()"
-            title="Organograma Corporativo & Estrutura de Cargos por Setor">
+          <button class="nav-tab" id="nav-tab-organograma" data-tab="tab-organograma" onclick="switchTab('tab-organograma')"
+            title="Organograma Editável Livre (Mover, Posicionar e Escrever)">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="9" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5"/><path d="M5 17v-5h14v5"/></svg>
             </span>
-            <span class="nav-text">Organograma RH</span>
-            <span class="nav-badge info">Áreas</span>
+            <span class="nav-text">Organograma</span>
+            <span class="nav-badge info">Livre</span>
+          </button>
+          <button class="nav-tab" id="nav-tab-plano-acao" data-tab="tab-plano-acao" onclick="switchTab('tab-plano-acao')"
+            title="Plano de Ação Estruturado e 100% Editável">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </span>
+            <span class="nav-text">Plano de Ação</span>
+            <span class="nav-badge success">5W2H</span>
           </button>
           <button class="nav-tab" id="nav-tab-custos" data-tab="tab-custos" onclick="switchTab('tab-custos')"
             title="Custos Industriais, Fichas Técnicas & Formação de Preço (Pricing)">
@@ -270,10 +285,21 @@
               <option value="PE">Pernambuco (PE)</option>
               <option value="EX">Exterior / Exportações</option>
             </select>
+
+            <select class="filter-select compact" id="filter-terceirizacao" onchange="applyGlobalFilters()"
+              title="Filtrar Clientes de Terceirização (Volmed, Unimed/Usimed, Callamed, Sancamed, Tornado, Comercial Gallanti, Nova OGP, Essence Dental, Hortron, Nutec, Setormed)"
+              style="border-color: rgba(16, 185, 129, 0.55); font-weight: 700;">
+              <option value="todos">🏭 Todos os Clientes (Com Terceirização)</option>
+              <option value="sem_terceirizacao">💎 Sem Terceirização (Alta Margem)</option>
+              <option value="apenas_terceirizacao">⚙️ Apenas Terceirização (11 Clientes)</option>
+            </select>
           </div>
         </div>
 
         <div class="topbar-right">
+          <button class="btn-action compact" id="btn-install-pwa" onclick="triggerPwaInstall()" title="Instalar Aplicativo (PWA) no Celular ou Computador" style="background: linear-gradient(135deg, rgba(2, 132, 199, 0.18), rgba(16, 185, 129, 0.18)); border-color: rgba(2, 132, 199, 0.45); color: #38bdf8; font-weight: 700;">
+            📲 <span class="hide-on-xs">Instalar App</span>
+          </button>
           <button class="btn-theme-toggle compact" id="btn-theme-toggle" onclick="toggleTheme()" title="Alternar Modo Claro / Escuro (Dia / Noite)">
             <span id="theme-toggle-icon">☀️</span> <span id="theme-toggle-text">Modo Claro</span>
           </button>
@@ -348,6 +374,152 @@
               <div class="kpi-value" id="kpi-clientes">1.958</div>
               <div class="kpi-sub" id="kpi-clientes-sub">Compradores cadastrados</div>
             </div>
+
+            <div class="kpi-card emerald">
+              <div class="kpi-header">
+                <span class="kpi-title">Recorrência de Compra</span>
+                <span class="kpi-icon">🔄</span>
+              </div>
+              <div class="kpi-value" id="kpi-recorrencia">41 dias</div>
+              <div class="kpi-sub" id="kpi-recorrencia-sub">Tempo médio p/ comprar de novo</div>
+            </div>
+          </div>
+
+          <!-- Barra Executiva de Filtro & Comparativo: Marca Própria vs. Terceirização (11 Clientes) -->
+          <div class="card-panel" id="panel-terceirizacao-resumo" style="margin-bottom: 18px; padding: 12px 16px; border: 1px solid rgba(16, 185, 129, 0.35);">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <span style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em;">
+                  🏭 Filtro de Terceirização (11 Clientes OEM/B2B):
+                </span>
+                <div style="display: inline-flex; gap: 6px; flex-wrap: wrap;">
+                  <button type="button" id="btn-terc-todos" onclick="setTerceirizacaoFilter('todos')"
+                    style="padding: 5px 11px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border-color); background: #0284c7; color: #fff;">
+                    🏭 Todos os Clientes
+                  </button>
+                  <button type="button" id="btn-terc-sem" onclick="setTerceirizacaoFilter('sem_terceirizacao')"
+                    style="padding: 5px 11px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border-color); background: var(--bg-card-alt); color: var(--text-main);">
+                    💎 Sem Terceirização (Alta Margem)
+                  </button>
+                  <button type="button" id="btn-terc-apenas" onclick="setTerceirizacaoFilter('apenas_terceirizacao')"
+                    style="padding: 5px 11px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border-color); background: var(--bg-card-alt); color: var(--text-main);">
+                    ⚙️ Apenas Terceirização
+                  </button>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 0.8rem;">
+                <div>
+                  <span style="color: var(--text-muted);">Marca Própria:</span>
+                  <strong id="terc-strip-sem-val" style="color: #059669; margin-left: 4px;">R$ 0,00</strong>
+                </div>
+                <div>
+                  <span style="color: var(--text-muted);">Terceirização:</span>
+                  <strong id="terc-strip-apenas-val" style="color: #d97706; margin-left: 4px;">R$ 0,00</strong>
+                  <span id="terc-strip-apenas-pct" style="color: var(--text-muted); font-size: 0.75rem;">(0%)</span>
+                </div>
+                <button type="button" onclick="toggleTabelaClientesTerceirizacao()"
+                  style="background: transparent; border: 1px solid var(--border-color); color: #0284c7; border-radius: 6px; padding: 4px 10px; font-size: 0.76rem; font-weight: 700; cursor: pointer;">
+                  👁️ Validar Lista de Terceirização
+                </button>
+              </div>
+            </div>
+
+            <!-- Gaveta Expansível com Filtro Mensal e Validação dos Clientes de Terceirização -->
+            <div id="terc-clientes-drawer" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">
+                  📋 Clientes Classificados como Terceirização &amp; Faturamento por Mês:
+                </div>
+
+                <!-- Filtros de Ano e Mês exclusivos da Terceirização -->
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">📅 Período:</span>
+                  <select id="terc-drawer-ano" class="filter-select compact" onchange="onTercDrawerPeriodChange()" style="font-weight: 700; border-color: rgba(2, 132, 199, 0.45);">
+                    <option value="2026" selected>Ano 2026</option>
+                    <option value="2025">Ano 2025</option>
+                    <option value="2024">Ano 2024</option>
+                    <option value="2023">Ano 2023</option>
+                    <option value="2022">Ano 2022</option>
+                    <option value="2021">Ano 2021</option>
+                    <option value="2020">Ano 2020</option>
+                    <option value="todos">Todos os Anos (2020-2026)</option>
+                  </select>
+
+                  <select id="terc-drawer-mes" class="filter-select compact" onchange="onTercDrawerPeriodChange()" style="font-weight: 700; border-color: rgba(16, 185, 129, 0.5);">
+                    <option value="todos" selected>Todos os Meses (Jan a Dez)</option>
+                    <option value="1">01 - Janeiro</option>
+                    <option value="2">02 - Fevereiro</option>
+                    <option value="3">03 - Março</option>
+                    <option value="4">04 - Abril</option>
+                    <option value="5">05 - Maio</option>
+                    <option value="6">06 - Junho</option>
+                    <option value="7">07 - Julho</option>
+                    <option value="8">08 - Agosto</option>
+                    <option value="9">09 - Setembro</option>
+                    <option value="10">10 - Outubro</option>
+                    <option value="11">11 - Novembro</option>
+                    <option value="12">12 - Dezembro</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Barra para Buscar e Selecionar Novos Clientes da Base para Terceirização -->
+              <div style="background: var(--bg-card-alt); border: 1px solid rgba(2, 132, 199, 0.35); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                  <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
+                    <span style="font-size: 0.78rem; font-weight: 800; color: #0284c7; white-space: nowrap;">➕ Adicionar Cliente à Terceirização:</span>
+                    <input type="text" id="terc-add-client-search" class="table-search-input"
+                      placeholder="🔍 Digite o nome do cliente ou cidade para buscar nos 1.900+ clientes da base..."
+                      oninput="onSearchNewTercClient(this.value)"
+                      onfocus="onSearchNewTercClient(this.value, true)"
+                      style="flex: 1; min-width: 220px; padding: 6px 11px; font-size: 0.8rem;" />
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="text" id="terc-add-client-grupo" class="table-search-input"
+                      placeholder="Grupo (ex: Terceirizado)" value="Terceirizado"
+                      style="width: 135px; padding: 6px 9px; font-size: 0.78rem;" title="Nome do grupo para classificar o cliente adicionado" />
+                    <button type="button" class="btn-action" onclick="toggleNewTercClientDropdown()"
+                      style="font-size: 0.76rem; padding: 6px 11px; background: rgba(2, 132, 199, 0.12); color: #0284c7; border-color: rgba(2, 132, 199, 0.35); font-weight: 700;">
+                      📋 Escolher da Lista de Clientes
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Lista suspensa de resultados da base de clientes -->
+                <div id="terc-add-search-results" style="display: none; margin-top: 10px; max-height: 230px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-card);">
+                  <!-- Preenchido via JS -->
+                </div>
+              </div>
+
+              <!-- Faixa clicável de evolução mês a mês da Terceirização no ano selecionado -->
+              <div id="terc-monthly-pills-strip" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 6px; margin-bottom: 12px;">
+                <!-- Preenchido via JS -->
+              </div>
+
+              <div class="table-responsive" style="max-height: 340px; overflow-y: auto;">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 44px; text-align: center;">Ativo</th>
+                      <th>Grupo</th>
+                      <th>Razão Social / Cliente no Conta Azul</th>
+                      <th>Cidade / UF</th>
+                      <th id="th-terc-periodo-sel" style="background: rgba(16, 185, 129, 0.12); color: #059669;">Faturamento no Período</th>
+                      <th>Pedidos (Período)</th>
+                      <th>Peças (Período)</th>
+                      <th>Faturamento Histórico (NF)</th>
+                      <th>Ano 2025</th>
+                      <th>Ano 2026</th>
+                      <th>Última Compra</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-clientes-terceirizacao">
+                    <!-- JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
 
@@ -421,6 +593,95 @@
               </div>
               <div class="chart-wrapper">
                 <canvas id="chart-categorias"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===================================================================
+               INDICADOR DE RECORRÊNCIA DE COMPRA & CICLO MÉDIO DE RECOMPRA
+               =================================================================== -->
+          <div class="card-panel" id="panel-recorrencia-compra" style="margin-top: 20px; border: 1px solid rgba(16, 185, 129, 0.35);">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 class="panel-title">🔄 Indicador de Recorrência de Compra &amp; Tempo Médio de Recompra</h3>
+                <p class="panel-subtitle" id="recorrencia-subtitle">Análise do intervalo médio em dias em que os clientes voltam a comprar da fábrica</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <select id="filter-recorrencia-faixa" class="filter-select" onchange="renderRecorrenciaTable()" style="font-size: 0.8rem;">
+                  <option value="todas">Todos os Ciclos de Recompra</option>
+                  <option value="mensal">🔥 Mensal / Alta Frequência (Até 30 dias)</option>
+                  <option value="bimestral">🟢 Bimestral (31 a 60 dias)</option>
+                  <option value="trimestral">🔵 Trimestral (61 a 90 dias)</option>
+                  <option value="semestral">🟡 Semestral (91 a 180 dias)</option>
+                  <option value="esporadico">⚪ Esporádico (Acima de 180 dias)</option>
+                </select>
+                <input type="text" id="search-recorrencia-cliente" class="table-search-input" placeholder="🔍 Buscar cliente recorrente..." oninput="renderRecorrenciaTable()" style="min-width: 210px; padding: 6px 10px; font-size: 0.8rem;">
+              </div>
+            </div>
+
+            <!-- 4 KPIs de Recorrência -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 14px; margin-bottom: 18px;">
+              <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-left: 4px solid #10b981; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">⏱️ Tempo Médio entre Recompras</div>
+                <div id="rec-kpi-intervalo" style="font-size: 1.45rem; font-weight: 800; color: #10b981; margin-top: 4px;">41 dias</div>
+                <div id="rec-kpi-intervalo-sub" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Intervalo médio entre pedidos consecutivos</div>
+              </div>
+
+              <div style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.3); border-left: 4px solid #0284c7; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">📊 Mediana &amp; Média por Cliente</div>
+                <div id="rec-kpi-mediana" style="font-size: 1.45rem; font-weight: 800; color: #0284c7; margin-top: 4px;">54 dias</div>
+                <div id="rec-kpi-mediana-sub" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Ciclo típico de reposição de estoque</div>
+              </div>
+
+              <div style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.3); border-left: 4px solid #7c3aed; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">🔁 Taxa de Clientes Recorrentes</div>
+                <div id="rec-kpi-taxa" style="font-size: 1.45rem; font-weight: 800; color: #7c3aed; margin-top: 4px;">52,1%</div>
+                <div id="rec-kpi-taxa-sub" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Clientes com 2 ou mais pedidos no período</div>
+              </div>
+
+              <div style="background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.3); border-left: 4px solid #d97706; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">🏆 Frequência &amp; Receita Fidelizada</div>
+                <div id="rec-kpi-frequencia" style="font-size: 1.45rem; font-weight: 800; color: #d97706; margin-top: 4px;">4,2x</div>
+                <div id="rec-kpi-frequencia-sub" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Média de pedidos por cliente recorrente</div>
+              </div>
+            </div>
+
+            <!-- Gráfico de Faixas de Recorrência + Tabela de Ciclo por Cliente -->
+            <div class="charts-grid-2" style="align-items: start;">
+              <div style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px;">
+                <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">📊 Distribuição de Clientes por Ciclo de Recompra</h4>
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 12px;">Quantidade de clientes recorrentes em cada faixa de tempo médio entre compras</p>
+                <div class="chart-wrapper" style="height: 270px;">
+                  <canvas id="chart-recorrencia-faixas"></canvas>
+                </div>
+              </div>
+
+              <div style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                  <div>
+                    <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--text-main);">🔁 Clientes Recorrentes &amp; Tempo Médio para Comprar de Novo</h4>
+                    <p style="font-size: 0.76rem; color: var(--text-muted);">Média real de dias entre os pedidos de cada cliente</p>
+                  </div>
+                  <span id="badge-recorrencia-count" class="nav-badge success" style="font-size: 0.75rem;">0 clientes</span>
+                </div>
+                <div class="table-responsive" style="max-height: 275px; overflow-y: auto;">
+                  <table class="custom-table">
+                    <thead>
+                      <tr>
+                        <th>Cliente</th>
+                        <th>UF</th>
+                        <th>Pedidos</th>
+                        <th>Faturamento</th>
+                        <th>Compra a Cada</th>
+                        <th>Última Compra</th>
+                        <th>Ciclo</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tbody-recorrencia-clientes">
+                      <!-- JS -->
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -552,6 +813,87 @@
               <div class="matrix-footer">
                 <span>Volume: <strong style="color: #fb7185;">Baixíssimo</strong></span>
                 <span>Estoque: <strong>Zero (MTO)</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===================================================================
+               METAS DE FATURAMENTO & VOLUME DE PRODUÇÃO POR FAMÍLIA DE PRODUTO
+               =================================================================== -->
+          <div class="card-panel" id="panel-metas-familia-producao" style="margin-bottom: 20px; border: 1px solid rgba(2, 132, 199, 0.35);">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 class="panel-title">🎯 Meta de Faturamento &amp; Produção por Família de Produto</h3>
+                <p class="panel-subtitle" id="metas-familia-subtitle">Planejamento fabril editável por linha de produto: defina a meta financeira (R$) e acompanhe a meta física (peças) e o atingimento</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn-action" onclick="aplicarSugestaoMetaFamilia(1.15)" style="font-size: 0.78rem; padding: 6px 12px;" title="Define as metas 15% acima do faturamento realizado no período">
+                  ⚡ Sugerir Meta (+15%)
+                </button>
+                <button type="button" class="btn-action" onclick="sincronizarMetaFamiliaComBudget()" style="font-size: 0.78rem; padding: 6px 12px;" title="Distribui o Budget oficial do período proporcionalmente entre as famílias">
+                  🎯 Sincronizar c/ Budget
+                </button>
+                <button type="button" class="btn-action" onclick="resetarMetasFamiliaProducao()" style="font-size: 0.78rem; padding: 6px 12px; opacity: 0.85;">
+                  🔄 Restaurar Padrão
+                </button>
+              </div>
+            </div>
+
+            <!-- KPIs Resumo das Metas de Produção por Família -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 14px; margin-bottom: 18px;">
+              <div style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.3); border-left: 4px solid #0284c7; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">🎯 Meta Total de Produção</div>
+                <div id="meta-fam-kpi-meta" style="font-size: 1.38rem; font-weight: 800; color: #0284c7; margin-top: 4px;">R$ 0,00</div>
+                <div id="meta-fam-kpi-meta-pecas" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">0 peças planejadas</div>
+              </div>
+
+              <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-left: 4px solid #10b981; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">⚙️ Realizado pelas Famílias</div>
+                <div id="meta-fam-kpi-real" style="font-size: 1.38rem; font-weight: 800; color: #10b981; margin-top: 4px;">R$ 0,00</div>
+                <div id="meta-fam-kpi-real-pecas" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">0 peças produzidas/vendidas</div>
+              </div>
+
+              <div style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.3); border-left: 4px solid #7c3aed; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">📈 Atingimento Global Fabril</div>
+                <div id="meta-fam-kpi-pct" style="font-size: 1.38rem; font-weight: 800; color: #7c3aed; margin-top: 4px;">0,0%</div>
+                <div id="meta-fam-kpi-pct-sub" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Performance consolidada do mix</div>
+              </div>
+
+              <div style="background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.3); border-left: 4px solid #d97706; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">⏳ Saldo / Gap a Produzir</div>
+                <div id="meta-fam-kpi-gap" style="font-size: 1.38rem; font-weight: 800; color: #d97706; margin-top: 4px;">R$ 0,00</div>
+                <div id="meta-fam-kpi-gap-pecas" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">0 peças restantes p/ meta</div>
+              </div>
+            </div>
+
+            <!-- Gráfico Comparativo + Tabela Editável por Família -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 18px;">
+              <div style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px;">
+                <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">📊 Comparativo: Faturamento Realizado vs. Meta Planejada por Família de Produto</h4>
+                <p style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 10px;">Altere qualquer valor de meta na tabela abaixo para atualizar o gráfico e a necessidade de peças da fábrica em tempo real</p>
+                <div class="chart-wrapper" style="height: 260px;">
+                  <canvas id="chart-metas-familia-producao"></canvas>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="custom-table" id="table-metas-familia-producao">
+                  <thead>
+                    <tr>
+                      <th>Família de Produto Industrial</th>
+                      <th>Faturamento Realizado</th>
+                      <th>✏️ Meta de Faturamento (R$)</th>
+                      <th>Peças Realizadas</th>
+                      <th>Preço Médio</th>
+                      <th>Meta Física (Peças)</th>
+                      <th>Saldo a Produzir</th>
+                      <th>% Atingimento &amp; Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-metas-familia-producao">
+                    <!-- Renderizado via JS -->
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -753,16 +1095,18 @@
             </div>
 
             <div class="card-panel">
-              <div class="panel-header">
+              <div class="panel-header" style="flex-wrap: wrap; gap: 10px;">
                 <div>
-                  <h3 class="panel-title">🏙️ Top 20 Cidades Consumidoras</h3>
-                  <p class="panel-subtitle">Municípios com maior volume financeiro demandado</p>
+                  <h3 class="panel-title">🏙️ Ranking Top 50 Cidades Consumidoras</h3>
+                  <p class="panel-subtitle">Os 50 municípios com maior volume financeiro demandado</p>
                 </div>
+                <input type="text" id="search-top-cidades" class="table-search-input" placeholder="🔍 Filtrar cidade..." oninput="filterTopCidadesTable()" style="max-width: 190px; padding: 5px 10px; font-size: 0.78rem;">
               </div>
-              <div class="table-responsive">
+              <div class="table-responsive" style="max-height: 540px; overflow-y: auto;">
                 <table class="custom-table">
                   <thead>
                     <tr>
+                      <th style="width: 48px;">#</th>
                       <th>Cidade</th>
                       <th>UF</th>
                       <th>Faturamento</th>
@@ -1446,33 +1790,6 @@
             </div>
           </div>
 
-          <!-- ===================================================================
-               ORGANOGRAMA CORPORATIVO & INDUSTRIAL (EMPRESA 1 & EMPRESA 2)
-               =================================================================== -->
-          <div class="card-panel" id="rh-organograma-panel" style="margin-top: 24px; border: 1px solid rgba(2, 132, 199, 0.35);">
-            <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
-              <div>
-                <h3 class="panel-title">🏛️ Organograma Corporativo &amp; Estrutura Organizacional por Setor</h3>
-                <p class="panel-subtitle" id="org-subtitle-info">Hierarquia funcional, lideranças e distribuição das equipes da Empresa 1 e da Empresa 2</p>
-              </div>
-              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <button type="button" id="btn-toggle-org-valores" onclick="toggleOrgChartValues()" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 6px; padding: 6px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer;">
-                  👁️ Ocultar Valores no Organograma
-                </button>
-              </div>
-            </div>
-
-            <!-- Resumo Rápido por Nível / Área -->
-            <div id="org-summary-strip" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
-              <!-- Preenchido via JS -->
-            </div>
-
-            <!-- Árvore Visual do Organograma -->
-            <div id="org-tree-container" style="padding: 8px 4px;">
-              <!-- Preenchido via JS -->
-            </div>
-          </div>
-
           <!-- Simulador de Contratação e Impacto na Folha -->
           <div class="simulator-box" style="margin-top: 24px;">
             <div class="simulator-header">
@@ -1504,6 +1821,199 @@
             <div class="simulator-results" id="sim-colab-results">
               <!-- Preenchido via Javascript -->
             </div>
+          </div>
+
+        </div>
+
+        <!-- =========================================================================
+         TAB ORGANOGRAMA: QUADRO LIVRE, SIMPLES E EDITÁVEL (MOVER, POSICIONAR E ESCREVER)
+         ========================================================================= -->
+        <div id="tab-organograma" class="tab-pane">
+          <div class="card-panel" style="border: 1px solid rgba(139, 92, 246, 0.35);">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 14px;">
+              <div>
+                <h3 class="panel-title">🏛️ Organograma Editável &amp; Quadro Livre de Estrutura</h3>
+                <p class="panel-subtitle">Arraste as caixas livremente para posicionar, clique nos textos para escrever e conecte os níveis como preferir (independente do RH)</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn-action" onclick="addFreeOrgNode()" style="background: #8b5cf6; color: #ffffff; border-color: #7c3aed; font-weight: 700;">
+                  ➕ Nova Caixa
+                </button>
+                <button type="button" class="btn-action" onclick="autoLayoutFreeOrg()" title="Alinha automaticamente as caixas em formato de árvore">
+                  📐 Auto-Alinhar Árvore
+                </button>
+                <div style="display: inline-flex; align-items: center; gap: 4px; background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 8px;">
+                  <span style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted);">Cor:</span>
+                  <button type="button" onclick="applyFreeOrgColorAll('#8b5cf6')" title="Roxo" style="width:18px;height:18px;border-radius:4px;background:#8b5cf6;border:1px solid #fff;cursor:pointer;"></button>
+                  <button type="button" onclick="applyFreeOrgColorAll('#0284c7')" title="Azul" style="width:18px;height:18px;border-radius:4px;background:#0284c7;border:1px solid #fff;cursor:pointer;"></button>
+                  <button type="button" onclick="applyFreeOrgColorAll('#059669')" title="Verde" style="width:18px;height:18px;border-radius:4px;background:#059669;border:1px solid #fff;cursor:pointer;"></button>
+                  <button type="button" onclick="applyFreeOrgColorAll('#d97706')" title="Laranja" style="width:18px;height:18px;border-radius:4px;background:#d97706;border:1px solid #fff;cursor:pointer;"></button>
+                  <button type="button" onclick="applyFreeOrgColorAll('#1e293b')" title="Grafite" style="width:18px;height:18px;border-radius:4px;background:#1e293b;border:1px solid #fff;cursor:pointer;"></button>
+                </div>
+                <button type="button" class="btn-action" onclick="resetFreeOrgDefault()" style="opacity: 0.85;" title="Voltar ao modelo padrão CEO -> Diretores -> Áreas">
+                  🔄 Restaurar Modelo Padrão
+                </button>
+              </div>
+            </div>
+
+            <!-- Dica rápida de uso -->
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 10px 14px; margin: 12px 0; border-radius: 8px; background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); font-size: 0.8rem; color: var(--text-main);">
+              <div>
+                💡 <strong>Como usar:</strong> Segure na barra superior <strong>(⠿ Mover)</strong> de qualquer caixa para arrastar e posicionar onde quiser &bull; <strong>Clique no texto</strong> para escrever &bull; Use <strong>➕ Filho</strong> para criar ramificações ou <strong>🔗 Ligado a</strong> para mudar a conexão.
+              </div>
+              <span id="free-org-status-saved" style="font-size: 0.75rem; font-weight: 700; color: #059669;">✓ Salvo automaticamente</span>
+            </div>
+
+            <!-- Quadro Interativo (Canvas de Arrastar + SVG de Linhas Ortogonais) -->
+            <div id="free-org-viewport" style="position: relative; width: 100%; overflow: auto; border: 1px solid var(--border-color); border-radius: 12px; background: radial-gradient(circle, rgba(148, 163, 184, 0.22) 1px, transparent 1px); background-size: 20px 20px; min-height: 640px;">
+              <div id="free-org-canvas" style="position: relative; width: 1200px; height: 640px; margin: 0 auto;">
+                <svg id="free-org-svg" width="1200" height="640" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></svg>
+                <div id="free-org-nodes" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================================
+         TAB PLANO DE AÇÃO: ESTRUTURA 100% EDITÁVEL (5W2H, PILARES E ANOTAÇÕES)
+         ========================================================================= -->
+        <div id="tab-plano-acao" class="tab-pane">
+
+          <!-- Cabeçalho Editável do Plano de Ação -->
+          <div class="card-panel" style="border: 1px solid rgba(2, 132, 199, 0.35); margin-bottom: 18px;">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+              <div style="flex: 1; min-width: 260px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 1.35rem;">📋</span>
+                  <h3 id="pa-titulo-principal" contenteditable="true" spellcheck="false"
+                    oninput="onPlanoAcaoMetaEdit('titulo', this.innerText)"
+                    style="font-size: 1.18rem; font-weight: 800; color: var(--text-main); outline: none; border-bottom: 1px dashed rgba(2, 132, 199, 0.45); padding: 2px 6px; cursor: text;"
+                    title="Clique para editar o título do Plano de Ação">Plano de Ação Estratégico &amp; Operacional (Clique para editar título)</h3>
+                </div>
+                <p id="pa-subtitulo-principal" contenteditable="true" spellcheck="false"
+                  oninput="onPlanoAcaoMetaEdit('subtitulo', this.innerText)"
+                  style="font-size: 0.82rem; color: var(--text-muted); margin-top: 6px; outline: none; padding: 2px 6px; cursor: text;"
+                  title="Clique para editar o objetivo ou período deste plano">Defina abaixo os pilares, metas, responsáveis, prazos e status de execução (salvo automaticamente)</p>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn-action" onclick="addPlanoAcaoRow()" style="background: #0284c7; color: #ffffff; border-color: #0369a1; font-weight: 700;">
+                  ➕ Nova Linha de Ação
+                </button>
+                <button type="button" class="btn-action" onclick="addPlanoAcaoPilar()" title="Adicionar novo bloco de diretriz/pilar no topo">
+                  ➕ Novo Bloco / Diretriz
+                </button>
+                <button type="button" class="btn-action" onclick="exportPlanoAcaoCSV()" title="Exportar plano preenchido para Excel/CSV">
+                  📥 Exportar CSV
+                </button>
+                <button type="button" class="btn-action" onclick="resetPlanoAcaoEstrutura()" style="opacity: 0.85;" title="Limpar e voltar à estrutura em branco">
+                  🔄 Limpar Estrutura
+                </button>
+              </div>
+            </div>
+
+            <!-- KPIs de Progresso do Plano de Ação -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 14px;">
+              <div style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.3); border-left: 4px solid #0284c7; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.73rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">📌 Total de Ações</div>
+                <div id="pa-kpi-total" style="font-size: 1.4rem; font-weight: 800; color: #0284c7; margin-top: 4px;">0</div>
+                <div id="pa-kpi-custo" style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">Orçamento previsto: R$ 0,00</div>
+              </div>
+
+              <div style="background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.3); border-left: 4px solid #d97706; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.73rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">⏳ A Fazer / Pendentes</div>
+                <div id="pa-kpi-pendentes" style="font-size: 1.4rem; font-weight: 800; color: #d97706; margin-top: 4px;">0</div>
+                <div id="pa-kpi-atrasadas" style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">0 marcadas em atraso</div>
+              </div>
+
+              <div style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.3); border-left: 4px solid #7c3aed; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.73rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">🚀 Em Andamento</div>
+                <div id="pa-kpi-andamento" style="font-size: 1.4rem; font-weight: 800; color: #7c3aed; margin-top: 4px;">0</div>
+                <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">Iniciativas em execução ativa</div>
+              </div>
+
+              <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-left: 4px solid #10b981; border-radius: 10px; padding: 12px 15px;">
+                <div style="font-size: 0.73rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">✅ Concluídas &amp; Progresso</div>
+                <div id="pa-kpi-concluidas" style="font-size: 1.4rem; font-weight: 800; color: #10b981; margin-top: 4px;">0 (0%)</div>
+                <div style="width: 100%; height: 6px; background: var(--border-color); border-radius: 999px; overflow: hidden; margin-top: 6px;">
+                  <div id="pa-kpi-progress-bar" style="width: 0%; height: 100%; background: #10b981; border-radius: 999px; transition: width 0.25s;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Blocos de Diretrizes / Pilares Editáveis -->
+          <div id="pa-pilares-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 18px;">
+            <!-- Renderizado via JS -->
+          </div>
+
+          <!-- Tabela Estruturada 5W2H 100% Editável -->
+          <div class="card-panel">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+              <div>
+                <h3 class="panel-title">🗂️ Matriz de Execução do Plano de Ação (5W2H Editável)</h3>
+                <p class="panel-subtitle">Clique em qualquer campo da tabela abaixo para digitar livremente</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <select id="pa-filter-status" class="filter-select" onchange="renderPlanoAcaoTable()" style="font-size: 0.8rem;">
+                  <option value="todos">Todos os Status</option>
+                  <option value="A Fazer">⏳ A Fazer</option>
+                  <option value="Em Andamento">🚀 Em Andamento</option>
+                  <option value="Atrasado">⚠️ Atrasado</option>
+                  <option value="Concluído">✅ Concluído</option>
+                </select>
+                <select id="pa-filter-prioridade" class="filter-select" onchange="renderPlanoAcaoTable()" style="font-size: 0.8rem;">
+                  <option value="todas">Todas as Prioridades</option>
+                  <option value="Alta">🔴 Alta Prioridade</option>
+                  <option value="Média">🟡 Média Prioridade</option>
+                  <option value="Baixa">🟢 Baixa Prioridade</option>
+                </select>
+                <input type="text" id="pa-search-input" class="table-search-input" placeholder="🔍 Filtrar ação, área ou responsável..." oninput="renderPlanoAcaoTable()" style="min-width: 220px; padding: 6px 10px; font-size: 0.8rem;">
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table" id="table-plano-acao">
+                <thead>
+                  <tr>
+                    <th style="width: 38px;">#</th>
+                    <th style="min-width: 210px;">O Quê (Ação / Iniciativa)</th>
+                    <th style="min-width: 130px;">Área / Setor</th>
+                    <th style="min-width: 180px;">Por Quê (Meta / Resultado)</th>
+                    <th style="min-width: 140px;">Quem (Responsável)</th>
+                    <th style="min-width: 130px;">Quando (Prazo)</th>
+                    <th style="min-width: 115px;">Quanto (R$)</th>
+                    <th style="min-width: 190px;">Como / Observações</th>
+                    <th style="min-width: 115px;">Prioridade</th>
+                    <th style="min-width: 135px;">Status</th>
+                    <th style="width: 80px; text-align: center;">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-plano-acao">
+                  <!-- Renderizado via JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+              <button type="button" class="btn-action" onclick="addPlanoAcaoRow()" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; border-color: rgba(2, 132, 199, 0.35); font-weight: 700;">
+                ➕ Adicionar Nova Linha
+              </button>
+              <span id="pa-save-indicator" style="font-size: 0.76rem; font-weight: 700; color: #059669;">✓ Estrutura salva automaticamente no navegador</span>
+            </div>
+          </div>
+
+          <!-- Bloco de Anotações Livres / Ata de Reunião -->
+          <div class="card-panel" style="margin-top: 18px;">
+            <div class="panel-header" style="margin-bottom: 8px;">
+              <div>
+                <h3 class="panel-title">📝 Anotações Livres, Pautas &amp; Decisões de Reunião</h3>
+                <p class="panel-subtitle">Espaço aberto para registrar observações gerais, alinhamentos de diretoria e próximos passos</p>
+              </div>
+            </div>
+            <textarea id="pa-notas-livres" oninput="onPlanoAcaoMetaEdit('notas', this.value)"
+              placeholder="Digite aqui suas anotações livres, pautas de reunião, metas gerais ou pontos de atenção..."
+              style="width: 100%; min-height: 125px; background: var(--bg-card-alt); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 14px; font-family: inherit; font-size: 0.86rem; line-height: 1.5; outline: none; resize: vertical;"></textarea>
           </div>
 
         </div>
@@ -2494,18 +3004,74 @@
     </div><!-- /.app-main-content -->
   </div><!-- /.app-shell -->
 
+
+  <!-- Backdrop para fechar menu lateral no celular ao tocar fora -->
+  <div id="mobile-sidebar-backdrop" class="mobile-sidebar-backdrop" onclick="closeMobileSidebar()"></div>
+
+  <!-- Barra de Navegação Inferior para Celular (Modo App Nativo PWA) -->
+  <nav id="mobile-bottom-nav" class="mobile-bottom-nav" aria-label="Navegação Rápida Mobile">
+    <button type="button" class="mob-nav-item active" data-mob-tab="tab-visao-geral" onclick="switchTab('tab-visao-geral')">
+      <span class="mob-nav-icon">📊</span>
+      <span class="mob-nav-lbl">Geral</span>
+    </button>
+    <button type="button" class="mob-nav-item" data-mob-tab="tab-producao" onclick="switchTab('tab-producao')">
+      <span class="mob-nav-icon">🏭</span>
+      <span class="mob-nav-lbl">Produção</span>
+    </button>
+    <button type="button" class="mob-nav-item" data-mob-tab="tab-estados" onclick="switchTab('tab-estados')">
+      <span class="mob-nav-icon">🗺️</span>
+      <span class="mob-nav-lbl">Estados</span>
+    </button>
+    <button type="button" class="mob-nav-item" data-mob-tab="tab-organograma" onclick="switchTab('tab-organograma')">
+      <span class="mob-nav-icon">🏛️</span>
+      <span class="mob-nav-lbl">Organog.</span>
+    </button>
+    <button type="button" class="mob-nav-item" data-mob-tab="tab-plano-acao" onclick="switchTab('tab-plano-acao')">
+      <span class="mob-nav-icon">📋</span>
+      <span class="mob-nav-lbl">Plano 5W2H</span>
+    </button>
+    <button type="button" class="mob-nav-item" onclick="toggleSidebar()">
+      <span class="mob-nav-icon">☰</span>
+      <span class="mob-nav-lbl">Menu</span>
+    </button>
+  </nav>
+
+  <!-- Modal de Instruções para Instalar como App no Celular (Android & iPhone) -->
+  <div id="pwa-install-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; max-width: 420px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">📲 Instalar BI Industrial no Celular</h3>
+        <button type="button" onclick="closePwaInstallModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer;">✕</button>
+      </div>
+      <p style="font-size: 0.83rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 14px;">
+        Este painel já está configurado como <strong>Aplicativo PWA</strong> (abre em tela cheia sem barra de navegador):
+      </p>
+      <div style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 10px; font-size: 0.82rem;">
+        <div style="font-weight: 800; color: #0284c7; margin-bottom: 4px;">🤖 No Android (Chrome / Edge / Samsung):</div>
+        <div style="color: var(--text-main); line-height: 1.4;">Toque nos <strong>3 pontinhos (⋮)</strong> no canto superior do navegador e selecione <strong>"Instalar aplicativo"</strong> ou <strong>"Adicionar à tela inicial"</strong>.</div>
+      </div>
+      <div style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 16px; font-size: 0.82rem;">
+        <div style="font-weight: 800; color: #10b981; margin-bottom: 4px;">🍎 No iPhone / iPad (Safari):</div>
+        <div style="color: var(--text-main); line-height: 1.4;">Toque no ícone <strong>Compartilhar (⬆️)</strong> na barra inferior do Safari e escolha <strong>"Adicionar à Tela de Início"</strong>.</div>
+      </div>
+      <button type="button" onclick="closePwaInstallModal()" style="width: 100%; background: #0284c7; color: #ffffff; border: none; border-radius: 8px; padding: 10px; font-weight: 800; font-size: 0.86rem; cursor: pointer;">
+        Entendi
+      </button>
+    </div>
+  </div>
+
   <!-- Dados da Aplicação com fallback duplo e cache-busting -->
-  <script src="Arquivos.js/data.js?v=20261112_emp12"></script>
+  <script src="Arquivos.js/data.js?v=20261119_v10"></script>
   <script>
     if (typeof window.DASHBOARD_DATA === 'undefined') {
-      document.write('<script src="data.js?v=20261112_emp12"><\/script>');
+      document.write('<script src="data.js?v=20261119_v10"><\/script>');
     }
   </script>
   <!-- Lógica da Aplicação com fallback duplo e cache-busting -->
-  <script src="Arquivos.js/app.js?v=20261112_emp12"></script>
+  <script src="Arquivos.js/app.js?v=20261119_v10"></script>
   <script>
     if (typeof initDashboard === 'undefined') {
-      document.write('<script src="app.js?v=20261112_emp12"><\/script>');
+      document.write('<script src="app.js?v=20261119_v10"><\/script>');
     }
   </script>
 </body>

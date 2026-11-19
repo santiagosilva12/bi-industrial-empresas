@@ -15,9 +15,11 @@ Relatório de vendas/
 Relatório de carteira de pedidos/
 Pedidos pendentes/
 Custo/
+Faturamento/
 *.pdf
 *.xlsx
-assets/
+assets/*
+!assets/pwa-icon-*.png
 
 # IDEs
 .vscode/
