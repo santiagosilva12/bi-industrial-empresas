@@ -27,7 +27,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="style.css?v=20261119_pwa">
+  <link rel="stylesheet" href="style.css?v=20261119_mobile_v2">
   <!-- Chart.js local (offline com suporte a Arquivos.js e raiz) -->
   <script src="Arquivos.js/chart.min.js"></script>
   <script>
@@ -297,6 +297,9 @@
         </div>
 
         <div class="topbar-right">
+          <button class="btn-action compact mobile-only-btn" id="btn-mobile-filters-toggle" onclick="toggleMobileFiltersBar()" title="Mostrar / Ocultar Filtros">
+            🌪️ <span>Filtros</span>
+          </button>
           <button class="btn-action compact" id="btn-install-pwa" onclick="triggerPwaInstall()" title="Instalar Aplicativo (PWA) no Celular ou Computador" style="background: linear-gradient(135deg, rgba(2, 132, 199, 0.18), rgba(16, 185, 129, 0.18)); border-color: rgba(2, 132, 199, 0.45); color: #38bdf8; font-weight: 700;">
             📲 <span class="hide-on-xs">Instalar App</span>
           </button>
@@ -3061,17 +3064,17 @@
   </div>
 
   <!-- Dados da Aplicação com fallback duplo e cache-busting -->
-  <script src="Arquivos.js/data.js?v=20261119_v10"></script>
+  <script src="Arquivos.js/data.js?v=20261119_v11"></script>
   <script>
     if (typeof window.DASHBOARD_DATA === 'undefined') {
-      document.write('<script src="data.js?v=20261119_v10"><\/script>');
+      document.write('<script src="data.js?v=20261119_v11"><\/script>');
     }
   </script>
   <!-- Lógica da Aplicação com fallback duplo e cache-busting -->
-  <script src="Arquivos.js/app.js?v=20261119_v10"></script>
+  <script src="Arquivos.js/app.js?v=20261119_v11"></script>
   <script>
     if (typeof initDashboard === 'undefined') {
-      document.write('<script src="app.js?v=20261119_v10"><\/script>');
+      document.write('<script src="app.js?v=20261119_v11"><\/script>');
     }
   </script>
 </body>

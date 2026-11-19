@@ -948,9 +948,13 @@ function getOrCreateChart(canvasId, config) {
       }
     }
 
-    // 2. Legendas (Legend)
+    // 2. Legendas (Legend) + Adaptação Mobile Automática
     if (config.options.plugins && config.options.plugins.legend) {
       const leg = config.options.plugins.legend;
+      if (window.innerWidth <= 768 && leg.position === 'right') {
+        leg.position = 'bottom';
+        leg.labels = Object.assign({}, leg.labels || {}, { boxWidth: 10, padding: 8, font: { size: 10 } });
+      }
       if (leg.labels) {
         if (!leg.labels.color || leg.labels.color === '#e5e7eb' || leg.labels.color === '#ffffff' || leg.labels.color === '#1e293b' || leg.labels.color === '#334155') {
           leg.labels.color = isLight ? '#1e293b' : '#e5e7eb';
@@ -7854,3 +7858,10 @@ function closeMobileSidebar() {
   document.getElementById('mobile-sidebar-backdrop')?.classList.remove('show');
 }
 window.closeMobileSidebar = closeMobileSidebar;
+
+function toggleMobileFiltersBar() {
+  const filtersEl = document.querySelector('.topbar-filters');
+  if (!filtersEl) return;
+  filtersEl.classList.toggle('mobile-filters-open');
+}
+window.toggleMobileFiltersBar = toggleMobileFiltersBar;

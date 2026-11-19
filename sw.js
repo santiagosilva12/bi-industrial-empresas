@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bi-industrial-pwa-v1';
+const CACHE_NAME = 'bi-industrial-pwa-v2';
 const CORE_ASSETS = [
   './',
   './index.html',
